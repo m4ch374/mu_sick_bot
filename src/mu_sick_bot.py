@@ -2,13 +2,10 @@
 # make my own main entry point haha lmao xddd
 
 # Imports from libraries
+import os
 from discord.ext import commands
-from discord.ext.commands.errors import CommandError
+from discord.ext.commands.bot import Bot
 from discord.message import Message
-
-from bot_logger import logger
-from bot_commands import commandsCommon
-from error_handling import commandsErrorCommon
 
 # main fnc
 def main():
@@ -32,10 +29,11 @@ def main():
         
         await bot.process_commands(message)
 
-    # Import cogs
-    bot.add_cog(logger(bot))
-    bot.add_cog(commandsCommon(bot))
-    bot.add_cog(commandsErrorCommon(bot))
+    # Load cogs
+    for files in os.listdir(os.path.dirname(__file__)):
+        if files != "mu_sick_bot.py" and files != "__pycache__":
+            print(f"Loaded {files}")
+            bot.load_extension(f"{files[:-3]}")
 
     # run token
     bot.run('OTIxMzI4NTEyNzE4MjA5MDU1.YbxUCg._ZmyMkTtgFh_znDg3xxuZw6KAZY')
