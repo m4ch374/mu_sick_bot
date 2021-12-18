@@ -1,3 +1,4 @@
+# File for handling errors in bot_command
 from discord.ext import commands
 from discord.ext.commands import Context
 
