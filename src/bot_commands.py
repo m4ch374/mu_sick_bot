@@ -4,8 +4,8 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.bot import Bot
 
-def setup(bot: Bot):
-    bot.add_cog(commandsCommon(bot))
+# def setup(bot: Bot):
+#     bot.add_cog(commandsCommon(bot))
 
 class commandsCommon(commands.Cog):
     def __init__(self, bot):

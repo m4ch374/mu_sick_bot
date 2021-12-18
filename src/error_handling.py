@@ -1,4 +1,5 @@
 # File for handling errors in bot_command
+import discord
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.bot import Bot
@@ -6,8 +7,8 @@ from discord.ext.commands.bot import Bot
 # imports from own files
 import bot_commands
 
-def setup(bot: Bot):
-    bot.add_cog(commandsErrorCommon(bot))
+# def setup(bot: Bot):
+#     bot.add_cog(commandsErrorCommon(bot))
 
 class commandsErrorCommon(commands.Cog):
     def __init__(self, bot):

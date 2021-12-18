@@ -2,8 +2,8 @@
 from discord.ext import commands
 from discord.ext.commands.bot import Bot
 
-def setup(bot: Bot):
-    bot.add_cog(logger(bot))
+# def setup(bot: Bot):
+#     bot.add_cog(logger(bot))
 
 class logger(commands.Cog):
     def __init__(self, bot):
