@@ -2,13 +2,11 @@
 # make my own main entry point haha lmao xddd
 
 # Imports from libraries
-from logging import error
 from discord.ext import commands
 from discord.message import Message
 
 # Imports from own file
-import bot_commands
-import error_handling
+from bot_commands import commandsCommon
 
 # main fnc
 def main():
@@ -31,11 +29,10 @@ def main():
         await bot.process_commands(message)
 
     # import cogs
-    bot.add_cog(bot_commands.commandsCommon(bot))
-    bot.add_cog(error_handling.commandsErrorCommon(bot))
+    bot.add_cog(commandsCommon(bot))
 
     # run token
-    bot.run('OTIxMzI4NTEyNzE4MjA5MDU1.YbxUCg._ZmyMkTtgFh_znDg3xxuZw6KAZY')
+    bot.run('Place token here')
 
 # Only execute main if user executes this file
 if __name__ == '__main__':
