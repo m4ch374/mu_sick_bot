@@ -18,3 +18,8 @@ class commandsCommon(commands.Cog):
     @commands.command()
     async def echo(self, ctx: Context, *, args):
         await ctx.send(args)
+
+    # @echo.error
+    # async def echo_error(self, ctx: Context, error):
+    #     if isinstance(error, commands.MissingRequiredArgument):
+    #         await ctx.send("No arguments found")

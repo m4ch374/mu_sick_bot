@@ -29,9 +29,9 @@ def main():
         await bot.process_commands(message)
 
     # Import Cogs from files
-    for files in os.listdir("./cogs"):
-        if files != "__pycache__":
-            bot.load_extension(f"cogs.{files[:-3]}")
+    for files in os.listdir(os.path.dirname(__file__)):
+        if files != "__pycache__" and files != "mu_sick_bot.py":
+            bot.load_extension(f"{files[:-3]}")
 
     # run token
     bot.run('OTIxMzI4NTEyNzE4MjA5MDU1.YbxUCg._ZmyMkTtgFh_znDg3xxuZw6KAZY')
