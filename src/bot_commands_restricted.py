@@ -1,51 +1,30 @@
-# We could use classes for organizing different types of
-# commands for the discord bot
+# File for commands that only fit for the worthy
 
-# Error handling goes to the same file
+# Requires permission to use the command
+# Permission function is cog_check, MUST return a bool type
+# (Another black magic from discord.py lol)
+
+# Commands and error handling goes to the same file
+
 import json
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.bot import Bot
 
 def setup(bot: Bot):
-    bot.add_cog(commandsCommon(bot))
     bot.add_cog(commandsRestricted(bot))
-
-class commandsCommon(commands.Cog):
-    def __init__(self, bot: Bot):
-        self.bot = bot
-
-    # Hello command
-    # usage: hello
-    # returns a massage saying "hello world"
-    @commands.command(name = "hello")
-    async def hello(self, ctx: Context):
-        await ctx.send("hello world")
-
-    # ========
-    # Echo command
-    # usage: echo [arg]
-    # returns a message of the arg
-    @commands.command(name = "echo")
-    async def echo(self, ctx: Context, *, args):
-        await ctx.send(args)
-
-    # Error handler
-    @echo.error
-    async def echo_error(self, ctx: Context, error):
-        if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("No arguments found")
-    # ========
 
 class commandsRestricted(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
+    # Applies permission check to all commands
+    # Check wether the author of the message is server owner
+    # Feel free to change the permission
     async def cog_check(self, ctx: Context):
-        print(f"{ctx.author} == {ctx.guild}")
         return ctx.author == ctx.guild.owner
 
-    # ========
+    # ========================================
     # Set prefix 
     # usage: setPrefix [new_prefix]
     # sets prefix and return a message
@@ -57,18 +36,7 @@ class commandsRestricted(commands.Cog):
         if "<@!" in new_prefix:
             return await ctx.send("Cannot set prefix as user")
 
-        #Read in json file
-        f = open('../settings/settings.json', "r+")
-        data = json.load(f)
-
-        #Set new prefix
-        data['Prefix']['defaultPrefix'] = new_prefix
-        f.seek(0)
-        json.dump(data, f, indent=4)
-        f.truncate()
-
-        #close json file
-        f.close()
+        self.modify_json_prefix(new_prefix)
         
         self.bot.command_prefix = new_prefix
         await ctx.send(f"Prefix updated to {new_prefix}")
@@ -89,4 +57,24 @@ class commandsRestricted(commands.Cog):
         
         output_str += "\nUsage: setPrefix [new_prefix]"
         await ctx.send(output_str)
-    # ========
+
+    # Helper function
+    def modify_json_prefix(self, new_prefix: str):
+        #Read in json file
+        f = open('../settings/settings.json', "r+")
+        data = json.load(f)
+
+        #Set new prefix
+        data['Prefix']['customPrefix'] = new_prefix
+        f.seek(0)
+        json.dump(data, f, indent=4)
+        f.truncate()
+
+        #close json file
+        f.close()
+    # ========================================
+
+    # ========================================
+    # General Helper functinos
+    # ========================================
+    # maybe i need to use it idk bro
