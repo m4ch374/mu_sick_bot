@@ -3,16 +3,23 @@
 
 # Imports from libraries
 import os
+import json
 from discord.ext import commands
-from discord.ext.commands.bot import Bot
 from discord.message import Message
 
 # main fnc
 def main():
-    # prefix variable
-    prefix = '$'
+    #Read in json file
+    f = open('../settings/settings.json', 'r')
+    data = json.load(f)
 
-    bot = commands.Bot(command_prefix=prefix)
+    # prefix variable
+    prefix = data['Prefix']['defaultPrefix']
+
+    #close json file
+    f.close()
+
+    bot = commands.Bot(command_prefix = commands.when_mentioned_or(prefix), strip_after_prefix = True)
 
     # Execute commands after recievesa message
     @bot.event
@@ -21,12 +28,8 @@ def main():
         # Ignore if the message is sent by the bot itself
         if message.author == bot.user:
             return
-
-        # Print out the message if user tries to
-        # use the bot (commands that does not exist also prints)
-        if prefix in message.content.split()[0]:
-            print(f"{message.author}: {message.content}")
         
+        # Execute commands
         await bot.process_commands(message)
 
     # Load cogs
