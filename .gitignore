@@ -1,5 +1,2 @@
 # ignore pycache files
 src/__pycache__/
-
-# ignore readme file
-README.md
