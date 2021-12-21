@@ -41,6 +41,10 @@ class commandsRestricted(commands.Cog):
     def __init__(self, bot: Bot):
         self.bot = bot
 
+    async def cog_check(self, ctx: Context):
+        print(f"{ctx.author} == {ctx.guild}")
+        return ctx.author == ctx.guild.owner
+
     # ========
     # Set prefix 
     # usage: setPrefix [new_prefix]
@@ -72,8 +76,12 @@ class commandsRestricted(commands.Cog):
     # error handling
     @setPrefix.error
     async def setPrefix_error(self, ctx: Context, error):
-        output_str = ""
+        # Permission error
+        if isinstance(error, commands.MissingPermissions):
+            return await ctx.send("You do not have the permisssion to access this command")
 
+        # General argument error
+        output_str = ""
         if isinstance(error, commands.MissingRequiredArgument):
             output_str = "Error: too little arguments\n"
         else:

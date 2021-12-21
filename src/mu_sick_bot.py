@@ -4,11 +4,15 @@
 # Imports from libraries
 import os
 import json
+import discord
 from discord.ext import commands
 from discord.message import Message
 
 # main fnc
 def main():
+    # Set intents
+    intents = discord.Intents.all()
+
     #Read in json file
     f = open('../settings/settings.json', 'r')
     data = json.load(f)
@@ -19,7 +23,7 @@ def main():
     #close json file
     f.close()
 
-    bot = commands.Bot(command_prefix = commands.when_mentioned_or(prefix), strip_after_prefix = True)
+    bot = commands.Bot(command_prefix = commands.when_mentioned_or(prefix), strip_after_prefix = True, intents = intents)
 
     # Execute commands after recievesa message
     @bot.event
