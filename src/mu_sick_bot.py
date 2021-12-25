@@ -9,6 +9,9 @@ from discord.ext import commands
 from discord.ext.commands.bot import Bot
 from discord.message import Message
 
+# Imports from local files
+import help_command
+
 # main fnc
 def main():
     settings_path = '../settings/settings.json'
@@ -23,7 +26,8 @@ def main():
             commands.when_mentioned_or(get_prefix(settings_path)), 
 
         strip_after_prefix = True, 
-        intents = intents
+        intents = intents,
+        help_command = help_command.customHelpCmd()
     )
 
     # Execute commands after recievesa message

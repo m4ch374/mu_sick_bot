@@ -1,10 +1,11 @@
 {
     "fileIgnoreList": [
         "mu_sick_bot.py",
+        "help_command.py",
         "__pycache__"
     ],
     "Prefix": {
         "defaultPrefix": "$",
-        "customPrefix": "."
+        "customPrefix": "$"
     }
 }

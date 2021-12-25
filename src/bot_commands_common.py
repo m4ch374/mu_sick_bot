@@ -9,17 +9,25 @@ from discord.ext.commands import Context
 from discord.ext.commands.bot import Bot
 
 def setup(bot: Bot):
-    bot.add_cog(commandsCommon(bot))
+    bot.add_cog(commandsCommon())
 
 class commandsCommon(commands.Cog):
-    def __init__(self, bot: Bot):
-        self.bot = bot
+    # Afaik commands work without constructor
+    # unless we need self.Bot variable for some reson
+    # if thats the case then uncomment it
+    #
+    # def __init__(self, bot: Bot):
+    #     self.bot = bot
     
     # ========================================
     # Hello command
     # usage: hello
     # returns a massage saying "hello world"
-    @commands.command(name = "hello")
+    @commands.command(
+        name = "hello",
+        help = "hello",
+        description = "Returns a message saying \"hello world\""
+    )
     async def hello(self, ctx: Context):
         await ctx.send("hello world")
     # ========================================
@@ -28,7 +36,11 @@ class commandsCommon(commands.Cog):
     # Echo command
     # usage: echo [arg]
     # returns a message of the arg
-    @commands.command(name = "echo")
+    @commands.command(
+        name = "echo",
+        help = "echo [arg]",
+        description = "Returns a message of the arg" # change this i cannot England
+    )
     async def echo(self, ctx: Context, *, args):
         await ctx.send(args)
 
