@@ -6,6 +6,6 @@
     ],
     "Prefix": {
         "defaultPrefix": "$",
-        "customPrefix": "."
+        "customPrefix": "$"
     }
 }
