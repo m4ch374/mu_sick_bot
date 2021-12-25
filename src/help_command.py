@@ -6,7 +6,8 @@ import discord
 # Discord imports
 from discord.ext import commands
 from discord import Embed
-from discord.ext.commands import Command
+from discord.ext.commands import Command, Context, CommandError
+from discord.ext.commands.errors import CommandNotFound
 from discord.ext.commands.help import HelpCommand
 
 class customHelpCmd(commands.HelpCommand):
@@ -46,20 +47,6 @@ class customHelpCmd(commands.HelpCommand):
         embed_msg = self.spawn_help_template(
             title = f"{command.name}",
             desc = f"Usage: `{self.context.prefix}{command.help}`"
-        )
-
-        await self.get_destination().send(embed = embed_msg)
-    # ========================================
-
-    # ========================================
-    # Triggered when the inputted command does not exist
-    # i.e. <prefix> help [command_not_in_cogs]
-    # Returns an error message
-    async def command_not_found(self, string):
-        embed_msg = self.spawn_help_template(
-            title = "Command not found",
-            desc = (f"`{string}` does not exist\n\n" +
-                f"Type: `{self.context.prefix}help` to get the list of commands")
         )
 
         await self.get_destination().send(embed = embed_msg)
