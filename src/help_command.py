@@ -6,8 +6,8 @@ import discord
 # Discord imports
 from discord.ext import commands
 from discord import Embed
+from discord.ext.commands import Command
 from discord.ext.commands.help import HelpCommand
-from discord.ext.commands.bot import Bot
 
 class customHelpCmd(commands.HelpCommand):
 
@@ -15,25 +15,71 @@ class customHelpCmd(commands.HelpCommand):
     def __init__(self):
         HelpCommand.__init__(self)
 
-    # Triggered if user only type "help"
+    # ========================================
+    # Triggered when user type help only
+    # i.e. <prefix> help
+    # Returns an embed containing a list of commands
     async def send_bot_help(self, mapping: Mapping):
         # Get a list of the commands
         cmd_list = list(chain.from_iterable(mapping[cogs] for cogs in mapping))
 
-        embed_msg = Embed(
+        embed_msg = self.spawn_help_template(
             title = "Command List",
-            description = "List of commands, type help [command] for more info",
-            colour = 0x9b59b6
-        )
-
-        embed_msg.set_author(
-            name = self.context.bot.user.name,
-            icon_url = self.context.bot.user.avatar_url
+            desc = ("List of commands\n" +
+                f"Type `{self.context.prefix}help [command]` for more info")
         )
 
         for cmd in cmd_list: 
             if cmd.name != 'help':
-                value_str = f"Usage: {cmd.help}"
+                value_str = f"Usage: `{self.context.prefix}{cmd.help}`"
                 embed_msg.add_field(name = cmd.name, value = value_str, inline = False)
 
         await self.get_destination().send(embed = embed_msg)
+    # ========================================
+
+    # ========================================
+    # Triggered when user type help [command]
+    # i.e. <preifx> help [command]
+    # Returns an embed with the description of the command
+    # and command arguments
+    async def send_command_help(self, command: Command):
+        embed_msg = self.spawn_help_template(
+            title = f"{command.name}",
+            desc = f"Usage: `{self.context.prefix}{command.help}`"
+        )
+
+        await self.get_destination().send(embed = embed_msg)
+    # ========================================
+
+    # ========================================
+    # Triggered when the inputted command does not exist
+    # i.e. <prefix> help [command_not_in_cogs]
+    # Returns an error message
+    async def command_not_found(self, string):
+        embed_msg = self.spawn_help_template(
+            title = "Command not found",
+            desc = (f"`{string}` does not exist\n\n" +
+                f"Type: `{self.context.prefix}help` to get the list of commands")
+        )
+
+        await self.get_destination().send(embed = embed_msg)
+    # ========================================
+
+    # ========================================
+    # General Helper functinos
+    # ========================================
+    
+    # ========================================
+    # Spawns an embed template
+    # Template properties:
+    #   color = purple
+    #   author = bot
+    def spawn_help_template(self, title: str, desc: str):
+        embed = Embed(colour = 0x9b59b6, title = title, description = desc)
+        embed.set_author(
+            name = self.context.bot.user.name,
+            icon_url = self.context.bot.user.avatar_url
+        )
+
+        return embed
+    # ========================================
