@@ -7,8 +7,9 @@
 # Commands and error handling goes to the same file
 
 import json
+from discord import Member
 from discord.ext import commands
-from discord.ext.commands import Context, MemberConverter
+from discord.ext.commands import Context
 from discord.ext.commands.bot import Bot
 
 def setup(bot: Bot):
@@ -94,49 +95,36 @@ class commandsRestricted(commands.Cog):
     # ========================================
 
     # ========================================
-    # Kick members
-    # Usage: kick [mention_target_members]
-    # Kicks member(s) and returns a confirmation msg
+    # Kick a member
+    # Usage: kick [mention_target_member]
+    # Kicks a member and returns a confirmation msg
     @commands.command(
         name = "kick",
-        help = "kick [mention_target_members]",
-        description = "Kicks member(s) and returns a confirmation msg"
+        help = "kick [mention_target_member] [reason]",
+        description = "Kicks a member and returns a confirmation msg"
     )
-    async def kick(self, ctx: Context, *, args: str):
-        member_list = self.get_member_list(ctx, args)
-        mem_name = [member.nick for member in member_list]
-
-        for mem in member_list: await mem.kick()
-
-        await ctx.send(f"Users: `{' '.join(mem_name)}` has been kicked")
+    async def kick(self, ctx: Context, member: Member, *, args: str=None):
+        mem_name = member.display_name
+        await member.kick(reason = args)
+        await ctx.send(f"Users: `{mem_name}` has been kicked")
     # ========================================
 
     # ========================================
-    # Ban members
-    # Usage: ban [mention_target_members]
+    # Ban a member
+    # Usage: ban [mention_target_member] [reason]
     # Bans member(s) and returns a confirmation msg
     @commands.command(
         name = "ban",
-        help = "ban [mention_target_members]",
-        description = "Bans member(s) and returns a confirmation msg"
+        help = "ban [mention_target_member] [reason]",
+        description = "Ban a member and returns a confirmation msg"
     )
-    async def ban(self, ctx: Context, *, args: str):
-        member_list = self.get_member_list(ctx, args)
-        member_name = [mem.nick for mem in member_list]
-
-        for member in member_list: await member.ban(delete_message_dats = 0)
-
-        await ctx.send(f"Users: `{' '.join(member_name)}` has been banned")
+    async def ban(self, ctx: Context, member: Member, *, args: str=None):
+        mem_name = member.display_name
+        await member.kick(reason = args)
+        await ctx.send(f"Users: `{' '.join(mem_name)}` has been banned")
     # ========================================
 
     # ========================================
     # General Helper functinos
     # ========================================
-
-    # ========================================
-    # Returns a member list from the current server
-    # Splits member string on whitespace
-    def get_member_list(self, ctx: Context, members: str):
-        mem_converter = MemberConverter()
-        return [mem_converter.convert(ctx, mem_str) for mem_str in members.split(' ')]
-    # ========================================
+    # 
