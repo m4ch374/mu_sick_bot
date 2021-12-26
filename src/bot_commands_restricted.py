@@ -8,7 +8,7 @@
 
 import json
 from discord.ext import commands
-from discord.ext.commands import Context
+from discord.ext.commands import Context, MemberConverter
 from discord.ext.commands.bot import Bot
 
 def setup(bot: Bot):
@@ -22,15 +22,21 @@ class commandsRestricted(commands.Cog):
     # Check wether the author of the message is server owner
     # Feel free to change the permission
     async def cog_check(self, ctx: Context):
+        # check if author is the owner of the server
         is_owner = ctx.author == ctx.guild.owner
+
+        # check if author is an admin in said channel
         is_admin = ctx.author.permissions_in(ctx.channel).administrator
 
+        # check if author is whitelisted
         f = open(self.json_file_path, "r")
         data = json.load(f)
         role = data['whitelistRole']
         f.close()
         memberRoles = [role.name for role in ctx.guild.get_member(ctx.author.id).roles]
         whitelisted = role in memberRoles
+
+        # permission conditions
         return is_owner or is_admin or whitelisted
 
     # ========================================
@@ -39,8 +45,8 @@ class commandsRestricted(commands.Cog):
     # sets prefix and return a message
     @commands.command(
         name = "setPrefix",
-        description = "Sets prefix and return a message",
-        help = "setPrefix [new_prefix]"
+        help = "setPrefix [new_prefix]",
+        description = "Sets prefix and return a message"
     )
     async def setPrefix(self, ctx: Context, *, new_prefix: str):
         # Remove head and tail whitespace
@@ -88,6 +94,49 @@ class commandsRestricted(commands.Cog):
     # ========================================
 
     # ========================================
+    # Kick members
+    # Usage: kick [mention_target_members]
+    # Kicks member(s) and returns a confirmation msg
+    @commands.command(
+        name = "kick",
+        help = "kick [mention_target_members]",
+        description = "Kicks member(s) and returns a confirmation msg"
+    )
+    async def kick(self, ctx: Context, *, args: str):
+        member_list = self.get_member_list(ctx, args)
+        mem_name = [member.nick for member in member_list]
+
+        for mem in member_list: await mem.kick()
+
+        await ctx.send(f"Users: `{' '.join(mem_name)}` has been kicked")
+    # ========================================
+
+    # ========================================
+    # Ban members
+    # Usage: ban [mention_target_members]
+    # Bans member(s) and returns a confirmation msg
+    @commands.command(
+        name = "ban",
+        help = "ban [mention_target_members]",
+        description = "Bans member(s) and returns a confirmation msg"
+    )
+    async def ban(self, ctx: Context, *, args: str):
+        member_list = self.get_member_list(ctx, args)
+        member_name = [mem.nick for mem in member_list]
+
+        for member in member_list: await member.ban(delete_message_dats = 0)
+
+        await ctx.send(f"Users: `{' '.join(member_name)}` has been banned")
+    # ========================================
+
+    # ========================================
     # General Helper functinos
     # ========================================
-    # maybe i need to use it idk bro
+
+    # ========================================
+    # Returns a member list from the current server
+    # Splits member string on whitespace
+    def get_member_list(self, ctx: Context, members: str):
+        mem_converter = MemberConverter()
+        return [mem_converter.convert(ctx, mem_str) for mem_str in members.split(' ')]
+    # ========================================
