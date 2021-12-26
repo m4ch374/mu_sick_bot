@@ -1,9 +1,11 @@
 # Main file for the bot, theres no main in python so imma 
 # make my own main entry point haha lmao xddd
 
-# Imports from libraries
+# System imports
 import os
 import json
+
+# Imports from discord
 import discord
 from discord.ext import commands
 from discord.ext.commands.bot import Bot

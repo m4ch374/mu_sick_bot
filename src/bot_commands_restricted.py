@@ -15,11 +15,23 @@ def setup(bot: Bot):
     bot.add_cog(commandsRestricted())
 
 class commandsRestricted(commands.Cog):
+    # Initial const variables
+    json_file_path = "../settings/settings.json"
+
     # Applies permission check to all commands
     # Check wether the author of the message is server owner
     # Feel free to change the permission
     async def cog_check(self, ctx: Context):
-        return ctx.author == ctx.guild.owner
+        is_owner = ctx.author == ctx.guild.owner
+        is_admin = ctx.author.permissions_in(ctx.channel).administrator
+
+        f = open(self.json_file_path, "r")
+        data = json.load(f)
+        role = data['whitelistRole']
+        f.close()
+        memberRoles = [role.name for role in ctx.guild.get_member(ctx.author.id).roles]
+        whitelisted = role in memberRoles
+        return is_owner or is_admin or whitelisted
 
     # ========================================
     # Set prefix 
@@ -62,7 +74,7 @@ class commandsRestricted(commands.Cog):
     # Helper function
     def modify_json_prefix(self, new_prefix: str):
         #Read in json file
-        f = open('../settings/settings.json', "r+")
+        f = open(self.json_file_path, "r+")
         data = json.load(f)
 
         #Set new prefix

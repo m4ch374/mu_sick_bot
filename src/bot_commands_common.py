@@ -3,7 +3,7 @@
 
 # Commands and error handling goes to the same file
 
-import json
+# Imports from discord
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.bot import Bot
