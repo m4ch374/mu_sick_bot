@@ -15,7 +15,7 @@ from discord.ext.commands.bot import Bot
 def setup(bot: Bot):
     bot.add_cog(commandsRestricted())
 
-class commandsRestricted(commands.Cog):
+class commandsRestricted(commands.Cog, name = "Moderation"):
     # Initial const variables
     json_file_path = "../settings/settings.json"
 

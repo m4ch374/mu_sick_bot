@@ -11,7 +11,7 @@ from discord.ext.commands.bot import Bot
 def setup(bot: Bot):
     bot.add_cog(commandsCommon())
 
-class commandsCommon(commands.Cog):
+class commandsCommon(commands.Cog, name = "Common commands"):
     # Afaik commands work without constructor
     # unless we need self.Bot variable for some reson
     # if thats the case then uncomment it
