@@ -101,7 +101,7 @@ class customHelpCmd(commands.HelpCommand):
     def spawn_help_template(self, title: str, desc: str=None):
         embed = Embed(colour = 0x9b59b6, title = title, description = desc)
         embed.set_author(
-            name = self.context.bot.user.name,
+            name = "I see you're a bit lost 👴🏻",
             icon_url = self.context.bot.user.avatar_url
         )
 
