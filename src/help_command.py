@@ -67,7 +67,7 @@ class customHelpCmd(commands.HelpCommand):
         for cmd in cmd_list:
             embed_msg.add_field(
                 name = f"**● {cmd.qualified_name}**",
-                value = f"Usage:\n> {cmd.help}",
+                value = f"Usage:\n> {self.context.prefix}{cmd.help}",
                 inline = False
             )
 
