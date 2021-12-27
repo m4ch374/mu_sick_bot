@@ -68,8 +68,9 @@ def get_prefix(file_path: str):
 def get_ignore_list(file_path: str):
     f = open(file_path, 'r')
     data = json.load(f)
-
-    return data['fileIgnoreList']
+    returned_list = data['fileIgnoreList']
+    f.close()
+    return returned_list
 
 def load_cogs(bot: Bot, ignore_list, curr_dir: str):
     # Load cogs
