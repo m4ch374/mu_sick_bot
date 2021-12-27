@@ -4,8 +4,7 @@ from typing import Mapping
 # Discord imports
 from discord.ext import commands
 from discord import Embed
-from discord.ext.commands import Command
-from discord.ext.commands import errors
+from discord.ext.commands import Command, CommandError
 from discord.ext.commands.help import HelpCommand
 
 class customHelpCmd(commands.HelpCommand):
@@ -61,7 +60,7 @@ class customHelpCmd(commands.HelpCommand):
     async def send_cog_help(self, cog: commands.Cog):
         cmd_list = cog.get_commands()
         if len(cmd_list) == 0:
-            return await self.send_error_message(errors.CommandNotFound)
+            return await self.send_error_message(commands.CommandNotFound)
 
         embed_msg = self.spawn_help_template(
             title = f"{cog.qualified_name}",
@@ -81,7 +80,7 @@ class customHelpCmd(commands.HelpCommand):
     # Triggered when the inputted command does not exist
     # i.e. <prefix> help [command_not_in_cogs]
     # Returns an error message
-    async def send_error_message(self, error: errors):
+    async def send_error_message(self, error: CommandError):
         arg_str = ' '.join(self.context.message.content.split(' ')[1:])
         embed_msg = self.spawn_help_template(
             title = "Command not found",
