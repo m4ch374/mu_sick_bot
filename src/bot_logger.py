@@ -42,7 +42,7 @@ class logger(commands.Cog):
     # preferrably put it in a new file
     # Oh and also change the message, these are only examples
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: Context, error: CommandError):
+    async def on_command_error(self, ctx: Context, error):
 
         if ctx.command.has_error_handler(): return
 
@@ -53,7 +53,7 @@ class logger(commands.Cog):
         elif isinstance(error, commands.UserInputError):
             message = "Something about your input was wrong, please check your input and try again!"
         else:
-            message = "Oh no! Something went wrong while running the command!"
+            print(error)
 
         await ctx.send(message)
     # ========================================

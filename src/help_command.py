@@ -99,10 +99,8 @@ class customHelpCmd(commands.HelpCommand):
     # Template properties:
     #   color = purple
     #   author = bot
-    def spawn_help_template(self, **kwargs):
-        embed = Embed(colour = 0x9b59b6)
-        for key, value in kwargs.items():
-            exec(f"embed.{key} = \"{value}\"")
+    def spawn_help_template(self, title :str, desc: str = None):
+        embed = Embed(colour = 0x9b59b6, title = title, description = desc)
 
         embed.set_author(
             name = "I see you're a bit lost 👴🏻",
