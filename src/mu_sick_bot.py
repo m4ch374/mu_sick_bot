@@ -16,7 +16,8 @@ import help_command
 
 # main fnc
 def main():
-    settings_path = '../settings/settings.json'
+    curr_dir_path = os.path.abspath(os.path.dirname(__file__)) + '/'
+    settings_path = f"{curr_dir_path}../settings/settings.json"
 
     # Set intents
     intents = discord.Intents.all()
@@ -44,7 +45,7 @@ def main():
         await bot.process_commands(message)
 
     ignore_list = get_ignore_list(settings_path)
-    load_cogs(bot, ignore_list)
+    load_cogs(bot, ignore_list, curr_dir_path)
 
     # run token
     bot.run('OTIxMzI4NTEyNzE4MjA5MDU1.YbxUCg._ZmyMkTtgFh_znDg3xxuZw6KAZY')
@@ -70,9 +71,9 @@ def get_ignore_list(file_path: str):
 
     return data['fileIgnoreList']
 
-def load_cogs(bot: Bot, ignore_list):
+def load_cogs(bot: Bot, ignore_list, curr_dir: str):
     # Load cogs
-    for files in os.listdir(os.path.dirname(__file__)):
+    for files in os.listdir(curr_dir):
         if not files in ignore_list:
             print(f"Loaded {files}")
             bot.load_extension(f"{files[:-3]}")
