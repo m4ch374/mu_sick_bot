@@ -105,7 +105,7 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
     )
     async def kick(self, ctx: Context, member: Member, *, args: str=None):
         mem_name = member.display_name
-        await member.kick(reason = args)
+        await member.kick(reason = args) if args != None else await member.kick()
         await ctx.send(f"Users: `{mem_name}` has been kicked")
     # ========================================
 
@@ -120,7 +120,7 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
     )
     async def ban(self, ctx: Context, member: Member, *, args: str=None):
         mem_name = member.display_name
-        await member.kick(reason = args)
+        await member.ban(reason = args) if args != None else await member.ban()
         await ctx.send(f"Users: `{' '.join(mem_name)}` has been banned")
     # ========================================
 

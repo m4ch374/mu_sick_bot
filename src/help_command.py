@@ -63,8 +63,7 @@ class customHelpCmd(commands.HelpCommand):
             return await self.send_error_message(commands.CommandNotFound)
 
         embed_msg = self.spawn_help_template(
-            title = f"{cog.qualified_name}",
-            desc = f"{cog.qualified_name} has the following commands:"
+            title = f"{cog.qualified_name}"
         )
         for cmd in cmd_list:
             embed_msg.add_field(
@@ -100,8 +99,11 @@ class customHelpCmd(commands.HelpCommand):
     # Template properties:
     #   color = purple
     #   author = bot
-    def spawn_help_template(self, title: str, desc: str=None):
-        embed = Embed(colour = 0x9b59b6, title = title, description = desc)
+    def spawn_help_template(self, **kwargs):
+        embed = Embed(colour = 0x9b59b6)
+        for key, value in kwargs.items():
+            exec(f"embed.{key} = \"{value}\"")
+
         embed.set_author(
             name = "I see you're a bit lost 👴🏻",
             icon_url = self.context.bot.user.avatar_url
