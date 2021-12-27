@@ -63,7 +63,10 @@ class customHelpCmd(commands.HelpCommand):
         if len(cmd_list) == 0:
             return await self.send_error_message(errors.CommandNotFound)
 
-        embed_msg = self.spawn_help_template(title = f"{cog.qualified_name}")
+        embed_msg = self.spawn_help_template(
+            title = f"{cog.qualified_name}",
+            desc = f"{cog.qualified_name} has the following commands:"
+        )
         for cmd in cmd_list:
             embed_msg.add_field(
                 name = f"**● {cmd.qualified_name}**",
