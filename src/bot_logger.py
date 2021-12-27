@@ -44,8 +44,16 @@ class logger(commands.Cog):
     @commands.Cog.listener()
     async def on_command_error(self, ctx: Context, error):
 
-        if ctx.command.has_error_handler(): return
-
+        try:
+            if ctx.command.has_error_handler(): 
+                # Note: I ran ".poo" and it said ctx.command is a NoneType...
+                message = "idk diff between this and next error lmao hol up"
+                print("processed ctx.cmd error bruh")
+        except:
+            # when has_error_handler gets AttributeError ('NoneType' object has no attribute 'has_error_handler')
+            ## ^ this means ctx.command is "None"
+            print("ctx.command is probably a nonetype")
+            message = "bruh u high or sumn? that cmd don't exist"
         if isinstance(error, commands.CommandNotFound):
             return  
         elif isinstance(error, commands.MissingPermissions):
