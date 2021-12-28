@@ -42,20 +42,13 @@ class logger(commands.Cog):
     # preferrably put it in a new file
     # Oh and also change the message, these are only examples
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: Context, error):
+    async def on_command_error(self, ctx: Context, error: CommandError):
 
-        try:
-            if ctx.command.has_error_handler(): 
-                # Note: I ran ".poo" and it said ctx.command is a NoneType...
-                message = "idk diff between this and next error lmao hol up"
-                print("processed ctx.cmd error bruh")
-        except:
-            # when has_error_handler gets AttributeError ('NoneType' object has no attribute 'has_error_handler')
-            ## ^ this means ctx.command is "None"
-            print("ctx.command is probably a nonetype")
-            message = "bruh u high or sumn? that cmd don't exist"
+        if ctx.command:
+            if ctx.command.has_error_handler(): return
+
         if isinstance(error, commands.CommandNotFound):
-            return  
+            message = "idk"
         elif isinstance(error, commands.MissingPermissions):
             message = "You are missing the required permissions to run this command!"
         elif isinstance(error, commands.UserInputError):
