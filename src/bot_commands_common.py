@@ -22,14 +22,24 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     # ========================================
     # Hello command
     # usage: hello
-    # returns a massage saying "hello world"
+    # returns a massage saying "hello world" * n
     @commands.command(
         name = "hello",
-        help = "hello",
-        description = "Returns a message saying \"hello world\""
+        help = "hello [int] (optional)",
+        description = "Returns a message saying \"hello world\" as many times as the int entered"
     )
-    async def hello(self, ctx: Context):
-        await ctx.send("hello world")
+    async def hello(self, ctx: Context, num: int = 1):
+        try:
+            if num <= 10 and num > 0:
+                await ctx.send("Hello World\n" * num)
+            elif num == 0:
+                await ctx.send("")
+            else: 
+                await ctx.send(f"{num} is not between 0 and 10!")
+            # This "Except" occurs when args cannot be converted to int. 
+        except:
+            await ctx.send("Please check you have entered the correct format. Run '.help [cmd]' for further info!")
+            ## ADD A COOLDOWN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     # ========================================
 
     # ========================================
@@ -48,8 +58,21 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     @echo.error
     async def echo_error(self, ctx: Context, error):
         if isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send("No arguments found")
+            await ctx.send("No additional arguments found. Run '.help [cmd]' for further info")
     # ========================================
+
+
+    # ========================================
+    # Random command
+    # usage: rand
+    # Selects a random [common] command (not inclu. "rand")
+    @commands.command(
+        name = "rand",
+        help = "rand",
+        description = "Selects a random [common] command"
+    )
+    async def rand(self, ctx: Context):
+        await ctx.send(args)
 
     # ========================================
     # General Helper functinos

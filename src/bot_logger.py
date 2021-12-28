@@ -43,12 +43,12 @@ class logger(commands.Cog):
     # Oh and also change the message, these are only examples
     @commands.Cog.listener()
     async def on_command_error(self, ctx: Context, error: CommandError):
-
+        # Checks if ctx.cmd is "None"
         if ctx.command:
             if ctx.command.has_error_handler(): return
 
         if isinstance(error, commands.CommandNotFound):
-            message = "idk"
+            message = "This command does not exist. Run |.help| for more info"
         elif isinstance(error, commands.MissingPermissions):
             message = "You are missing the required permissions to run this command!"
         elif isinstance(error, commands.UserInputError):
