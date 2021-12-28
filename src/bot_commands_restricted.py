@@ -62,7 +62,7 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
         self.modify_json_prefix(new_prefix)
         
         ctx.bot.command_prefix = new_prefix
-        await ctx.send(f"Prefix updated to {new_prefix}")
+        await ctx.send(f"Prefix updated to `{new_prefix}`")
 
     # error handling
     @setPrefix.error
