@@ -42,12 +42,13 @@ class logger(commands.Cog):
     # preferrably put it in a new file
     # Oh and also change the message, these are only examples
     @commands.Cog.listener()
-    async def on_command_error(self, ctx: Context, error):
+    async def on_command_error(self, ctx: Context, error: CommandError):
 
-        if ctx.command.has_error_handler(): return
+        if ctx.command:
+            if ctx.command.has_error_handler(): return
 
         if isinstance(error, commands.CommandNotFound):
-            return  
+            message = "idk"
         elif isinstance(error, commands.MissingPermissions):
             message = "You are missing the required permissions to run this command!"
         elif isinstance(error, commands.UserInputError):
