@@ -2,6 +2,7 @@
 # Command dosent require any permission
 
 # Import from system
+from discord import file
 import requests
 
 # Imports form discord
@@ -52,13 +53,15 @@ class commandsAPI(commands.Cog, name = "API"):
             )
             return
 
+        field_title = "● Global stats"
         lookup_list = ['TotalConfirmed', 'TotalDeaths', 'TotalRecovered', 'NewConfirmed']
         if is_country:
             lookup_list = ['Confirmed', 'Deaths', 'Recovered', 'Active']
             data = data[-1]
+            field_title = f"● {data['Country']}"
 
         embed_msg.add_field(
-            name = f"● {data['Country']}",
+            name = field_title,
             value = (
                 f"> Confirmed: `{data[lookup_list[0]]}`\n" + 
                 f"> Deaths: `{data[lookup_list[1]]}`\n" +
