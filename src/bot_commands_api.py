@@ -2,8 +2,9 @@
 # Command dosent require any permission
 
 # Import from system
-from discord import file
+import json
 import requests
+import datetime
 
 # Imports form discord
 from discord.ext import commands
@@ -34,7 +35,8 @@ class commandsAPI(commands.Cog, name = "API"):
 
             if country:
                 country.lower()
-                get_url = f"https://api.covid19api.com/live/country/{country}"
+                yesterday = (datetime.date.today() - datetime.timedelta(days = 1)).isoformat()
+                get_url = f"https://api.covid19api.com/live/country/{country}/status/confirmed/date/{yesterday}T00:00:00Z"
                 data = requests.get(get_url).json()
                 self.gen_covid_details(embed_msg, data, True)
             else:
@@ -53,15 +55,32 @@ class commandsAPI(commands.Cog, name = "API"):
             )
             return
 
-        field_title = "● Global stats"
-        lookup_list = ['TotalConfirmed', 'TotalDeaths', 'TotalRecovered', 'NewConfirmed']
+        print(json.dumps(data, indent = 4))
+        
         if is_country:
-            lookup_list = ['Confirmed', 'Deaths', 'Recovered', 'Active']
-            data = data[-1]
-            field_title = f"● {data['Country']}"
+            self.gen_country_details(embed_msg, data)
+        else:
+            self.gen_global_details(embed_msg, data)
 
+    # Helper function, generates country covid details
+    def gen_country_details(self, embed_msg: Embed, data):
+        lookup_list = ['Confirmed', 'Deaths', 'Recovered', 'Active']
         embed_msg.add_field(
-            name = field_title,
+            name = f"● {data[0]['Country']}",
+            value = (
+                f"> Confirmed: `{sum([item[lookup_list[0]] for item in data])}`\n" + 
+                f"> Deaths: `{sum([item[lookup_list[1]] for item in data])}`\n" +
+                f"> Recovered: `{sum([item[lookup_list[2]] for item in data])}`\n" +
+                f"> Active: `{sum([item[lookup_list[3]] for item in data])}`"
+            )
+        )
+        embed_msg.set_footer(text = f"Data might not be accurate | {data[0]['Date']}")
+
+    # Helper function, generates global covid details
+    def gen_global_details(self, embed_msg: Embed, data):
+        lookup_list = ['TotalConfirmed', 'TotalDeaths', 'TotalRecovered', 'NewConfirmed']
+        embed_msg.add_field(
+            name = "● Global stats",
             value = (
                 f"> Confirmed: `{data[lookup_list[0]]}`\n" + 
                 f"> Deaths: `{data[lookup_list[1]]}`\n" +
@@ -69,8 +88,7 @@ class commandsAPI(commands.Cog, name = "API"):
                 f"> Active: `{data[lookup_list[3]]}`"
             )
         )
-        embed_msg.set_footer(text = f"Data as of: {data['Date']}")
-
+        embed_msg.set_footer(text = f"Data might not be accurate | {data['Date']}")
     # ========================================
 
     # ========================================
