@@ -54,8 +54,6 @@ class commandsAPI(commands.Cog, name = "API"):
                 value = "Did you input the correct country slug?"
             )
             return
-
-        print(json.dumps(data, indent = 4))
         
         if is_country:
             self.gen_country_details(embed_msg, data)
