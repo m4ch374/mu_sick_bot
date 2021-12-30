@@ -33,16 +33,17 @@ class commandsAPI(commands.Cog, name = "API"):
             embed_msg.description = (f"For more info: `{ctx.prefix}covid [country_slug]`\n" + 
                 "Click [here](https://gist.github.com/Eskimon/02bf9b656f52381bb8ddf194a9979a2c) to see the full list of country slugs")
 
+            data = ""
             if country:
                 country.lower()
                 yesterday = (datetime.date.today() - datetime.timedelta(days = 1)).isoformat()
                 get_url = f"https://api.covid19api.com/live/country/{country}/status/confirmed/date/{yesterday}T00:00:00Z"
                 data = requests.get(get_url).json()
-                self.gen_covid_details(embed_msg, data, True)
             else:
                 get_url = "https://api.covid19api.com/summary"
                 data = requests.get(get_url).json()['Global']
-                self.gen_covid_details(embed_msg, data, False)
+
+            self.gen_covid_details(embed_msg, data, country)
             
         await ctx.send(embed = embed_msg)
 
