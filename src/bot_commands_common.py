@@ -28,15 +28,16 @@ class commandsCommon(commands.Cog, name = "Common commands"):
         help = "hello [int] (optional)",
         description = "Returns a message saying \"hello world\" as many times as the int entered"
     )
+    ## NOTE: When you do ".hello hi", the type-check fails, so it goes straight to the bot_logger errors, NOT the 'except' block.
+    ##       ALSO, u dont need the 'except' block
     async def hello(self, ctx: Context, num: int = 1):
         try:
             if num <= 10 and num > 0:
                 await ctx.send("Hello World\n" * num)
             elif num == 0:
-                await ctx.send("")
+                return
             else: 
-                await ctx.send(f"{num} is not between 0 and 10!")
-            # This "Except" occurs when args cannot be converted to int. 
+                await ctx.send(f"{num} is not between 0 and 10!") 
         except:
             await ctx.send("Please check you have entered the correct format. Run '.help [cmd]' for further info!")
             ## ADD A COOLDOWN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
