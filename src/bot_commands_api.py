@@ -92,6 +92,28 @@ class commandsAPI(commands.Cog, name = "API"):
     # ========================================
 
     # ========================================
+    # Anime command
+    # Usage: anime [title]
+    # Returns an embed containing the anime's info
+    @commands.command(
+        name = "anime",
+        help = "anime [title]",
+        description = "Returns an embed containing the anime's info"
+    )
+    async def anime(self, ctx: Context, *, args: str):
+        args.replace(" ", "%20")
+
+        get_url = f"https://kitsu.io/api/edge/anime?filter[text]={args}&page[limit]=1"
+        data = requests.get(get_url).json()
+        print(json.dumps(data, indent = 4))
+
+        embed_msg = self.spawn_embed(ctx, title = "Embed triggered")
+        embed_msg.description = "Response text printed to terminal"
+        embed_msg.set_image(url = data['data'][0]['attributes']['posterImage']['tiny'])
+
+        await ctx.send(embed = embed_msg)
+
+    # ========================================
     # General Helper Functions
     # ========================================
 
