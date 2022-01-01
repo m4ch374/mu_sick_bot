@@ -93,17 +93,20 @@ class commandsAPI(commands.Cog, name = "API"):
 
     # ========================================
     # Anime command
-    # Usage: anime [title]
+    # Usage: anime [title] Optional[offset]
     # Returns an embed containing the anime's info
     @commands.command(
         name = "anime",
-        help = "anime [title]",
-        description = "Returns an embed containing the anime's info"
+        help = "anime [title] Optional[offset]",
+        description = ("Returns an embed containing the anime's info\n\n" +
+            "Note: Set offset equates to index of the search result\n" +
+            "Used when the command gives out unexpected search results\n"+
+            "e.g. 0 is the first result, 1 is the second, etc...")
     )
-    async def anime(self, ctx: Context, *, args: str):
+    async def anime(self, ctx: Context, *, args: str, offset: int = 0):
         args.replace(" ", "%20")
 
-        get_url = f"https://kitsu.io/api/edge/anime?filter[text]={args}&page[limit]=1"
+        get_url = f"https://kitsu.io/api/edge/anime?filter[text]={args}&page[limit]=1&page[offset]={offset}"
         data = requests.get(get_url).json()
         print(json.dumps(data, indent = 4))
 
