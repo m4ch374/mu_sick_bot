@@ -14,19 +14,26 @@ from discord.message import Message
 # Imports from local files
 import help_command
 
+# ----------------------------------------
+# GLOBAL DEFINITIONS
+# btw this is really ugly, reckon there's a better way?
+global CURR_DIR_PATH
+global SETTINGS_PATH
+CURR_DIR_PATH = os.path.abspath(os.path.dirname(__file__)) + '/'
+SETTINGS_PATH = f"{CURR_DIR_PATH}../settings/settings.json"
+# ----------------------------------------
+
 # main fnc
 def main():
-    curr_dir_path = os.path.abspath(os.path.dirname(__file__)) + '/'
-    settings_path = f"{curr_dir_path}../settings/settings.json"
 
     # Set intents
     intents = discord.Intents.all()
 
-    prefix = get_prefix(settings_path)
+    prefix = get_prefix(SETTINGS_PATH)
 
     bot = commands.Bot(
         command_prefix = 
-            commands.when_mentioned_or(get_prefix(settings_path)), 
+            commands.when_mentioned_or(get_prefix(SETTINGS_PATH)), 
 
         strip_after_prefix = True, 
         intents = intents,
@@ -44,8 +51,8 @@ def main():
         # Execute commands
         await bot.process_commands(message)
 
-    ignore_list = get_ignore_list(settings_path)
-    load_cogs(bot, ignore_list, curr_dir_path)
+    ignore_list = get_ignore_list(SETTINGS_PATH)
+    load_cogs(bot, ignore_list, CURR_DIR_PATH)
 
     # run token
     bot.run('OTIxMzI4NTEyNzE4MjA5MDU1.YbxUCg._ZmyMkTtgFh_znDg3xxuZw6KAZY')

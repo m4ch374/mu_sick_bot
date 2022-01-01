@@ -12,12 +12,15 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.bot import Bot
 
+# Import form own file
+from mu_sick_bot import SETTINGS_PATH
+
 def setup(bot: Bot):
     bot.add_cog(commandsRestricted())
 
 class commandsRestricted(commands.Cog, name = "Moderation"):
     # Initial const variables
-    json_file_path = "../settings/settings.json"
+    json_file_path = SETTINGS_PATH
 
     # Applies permission check to all commands
     # Check wether the author of the message is server owner
@@ -59,7 +62,7 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
         self.modify_json_prefix(new_prefix)
         
         ctx.bot.command_prefix = new_prefix
-        await ctx.send(f"Prefix updated to {new_prefix}")
+        await ctx.send(f"Prefix updated to `{new_prefix}`")
 
     # error handling
     @setPrefix.error
