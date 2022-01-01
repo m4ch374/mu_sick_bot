@@ -106,42 +106,53 @@ class commandsAPI(commands.Cog, name = "API"):
     )
     async def anime(self, ctx: Context, *, args: str, offset: int = 0):
         async with ctx.typing():
-            args.replace(" ", "%20")
-
-            get_url = f"https://kitsu.io/api/edge/anime?filter[text]={args}&page[limit]=1&page[offset]={offset}"
-            data = requests.get(get_url).json()['data'][0]
-            print(json.dumps(data, indent = 4))
-
-            # Attributes
-            attr = data['attributes']
-            embed_msg = self.spawn_embed(ctx, title = f"{attr['titles']['en_jp']} | {attr['titles']['ja_jp']}")
-            embed_msg.add_field(name = "Release Date", value = f"> {attr['startDate']}")
-            embed_msg.add_field(name = "End Date", value = f"> {attr['endDate']}")
-            embed_msg.add_field(name = "Status", value = f"> {attr['status']}")
-            embed_msg.add_field(name = "Episodes", value = f"> {attr['episodeCount']}")
-            embed_msg.add_field(name = "Runtime", value = f"> {attr['episodeLength']}")
-            embed_msg.add_field(name = "Show Type", value = f"> {attr['showType']}")
-
-            # Genres and Ratings and nsfw
-            genre_list = self.get_genre(data)
-            embed_msg.add_field(name = "Genre", value = f"> {', '.join(genre_list)}")
-            embed_msg.add_field(name = "NSFW", value = f"> {attr['nsfw']}")
-            embed_msg.add_field(name = "Ratings", value = f"> {attr['averageRating']}")
-
-            # Description
-            embed_msg.add_field(name = "Intro", value = f"{attr['description'][:300]}...")
-            # embed_msg.set_image(url = attr['posterImage']['medium'])
-            embed_msg.set_thumbnail(url = attr['posterImage']['medium'])
-            embed_msg.set_image(url = attr['coverImage']['original'])
-
-            # Footer
-            embed_msg.set_footer(
-                text = (f"Not the result you expected? Type {ctx.prefix}help anime"),
-                icon_url = ctx.bot.user.avatar_url
-            )
+            try:
+                embed_msg = self.gen_anime_embed(ctx, args, offset)
+            except:
+                embed_msg = self.spawn_embed(ctx, title = "Oops! An error occurred.")
+                args = f"\"{args}\"" if '"' not in args else args
+                embed_msg.description = ("Anime not found\n" +
+                        f"Or you might want to try: `{ctx.prefix}anime {args}`")
 
         await ctx.send(embed = embed_msg)
 
+    def gen_anime_embed(self, ctx: Context, args: str, offset: int = 0):
+        args.replace(" ", "%20")
+
+        get_url = f"https://kitsu.io/api/edge/anime?filter[text]={args}&page[limit]=1&page[offset]={offset}"
+        data = requests.get(get_url).json()['data'][0]
+        print(json.dumps(data, indent = 4))
+
+        # Attributes
+        attr = data['attributes']
+        embed_msg = self.spawn_embed(ctx, title = f"{attr['titles']['en_jp']} | {attr['titles']['ja_jp']}")
+        embed_msg.add_field(name = "Release Date", value = f"> {attr['startDate']}")
+        embed_msg.add_field(name = "End Date", value = f"> {attr['endDate']}")
+        embed_msg.add_field(name = "Status", value = f"> {attr['status']}")
+        embed_msg.add_field(name = "Episodes", value = f"> {attr['episodeCount']}")
+        embed_msg.add_field(name = "Runtime", value = f"> {attr['episodeLength']}")
+        embed_msg.add_field(name = "Show Type", value = f"> {attr['showType']}")
+
+        # Genres and Ratings and nsfw
+        genre_list = self.get_genre(data)
+        embed_msg.add_field(name = "Genre", value = f"> {', '.join(genre_list)}")
+        embed_msg.add_field(name = "NSFW", value = f"> {attr['nsfw']}")
+        embed_msg.add_field(name = "Ratings", value = f"> {attr['averageRating']}")
+
+        # Description
+        embed_msg.add_field(name = "Intro", value = f"{attr['description'][:300]}...")
+        embed_msg.set_thumbnail(url = attr['posterImage']['medium'])
+        embed_msg.set_image(url = attr['coverImage']['original'])
+
+        # Footer
+        embed_msg.set_footer(
+            text = (f"Not the result you expected? Type {ctx.prefix}help anime"),
+            icon_url = ctx.bot.user.avatar_url
+        )
+
+        return embed_msg
+
+    # Helper function, returns the genre of the anime
     def get_genre(self, data):
         get_url = data['relationships']['genres']['links']['related']
         genres = requests.get(get_url).json()
