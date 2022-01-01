@@ -3,6 +3,7 @@
 
 # Import from system
 import json
+from discord.utils import get
 import requests
 import datetime
 
@@ -107,14 +108,47 @@ class commandsAPI(commands.Cog, name = "API"):
         args.replace(" ", "%20")
 
         get_url = f"https://kitsu.io/api/edge/anime?filter[text]={args}&page[limit]=1&page[offset]={offset}"
-        data = requests.get(get_url).json()
+        data = requests.get(get_url).json()['data'][0]
         print(json.dumps(data, indent = 4))
 
-        embed_msg = self.spawn_embed(ctx, title = "Embed triggered")
-        embed_msg.description = "Response text printed to terminal"
-        embed_msg.set_image(url = data['data'][0]['attributes']['posterImage']['tiny'])
+        # Attributes
+        attr = data['attributes']
+        embed_msg = self.spawn_embed(ctx, title = f"{attr['titles']['en_jp']} | {attr['titles']['ja_jp']}")
+        embed_msg.add_field(name = "Release Date", value = f"> {attr['startDate']}")
+        embed_msg.add_field(name = "End Date", value = f"> {attr['endDate']}")
+        embed_msg.add_field(name = "Status", value = f"> {attr['status']}")
+        embed_msg.add_field(name = "Episodes", value = f"> {attr['episodeCount']}")
+        embed_msg.add_field(name = "Runtime", value = f"> {attr['episodeLength']}")
+        embed_msg.add_field(name = "Show Type", value = f"> {attr['showType']}")
 
+        # Genres and Ratings and nsfw
+        genre_list = self.get_genre(data)
+        embed_msg.add_field(name = "Genre", value = f"> {', '.join(genre_list)}")
+        embed_msg.add_field(name = "NSFW", value = f"> {attr['nsfw']}")
+        embed_msg.add_field(name = "Ratings", value = f"> {attr['averageRating']}")
+
+        # Description
+        embed_msg.add_field(name = "Intro", value = f"{attr['description'][:300]}...")
+        embed_msg.set_image(url = attr['posterImage']['medium'])
+
+        # Footer
+        embed_msg.set_footer(
+            text = (f"Not the result you expected? Type {ctx.prefix}help anime"),
+            icon_url = ctx.bot.user.avatar_url
+        )
         await ctx.send(embed = embed_msg)
+
+    def get_genre(self, data):
+        get_url = data['relationships']['genres']['links']['related']
+        genres = requests.get(get_url).json()
+        print(json.dumps(genres, indent = 4))
+        
+        if len(genres['data']) == 0:
+            return ["N/A"]
+        else:
+            return [item['attributes']['name'] for item in genres['data']]
+
+    # ========================================
 
     # ========================================
     # General Helper Functions
