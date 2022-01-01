@@ -53,6 +53,8 @@ class logger(commands.Cog):
             message = "You are missing the required permissions to run this command!"
         elif isinstance(error, commands.UserInputError):
             message = "Something about your input was wrong, please check your input and try again!"
+        elif isinstance(error, commands.CommandOnCooldown):
+            message = f"Hey `{ctx.author.name}`, please wait `{round(error.retry_after)}` seconds before executing this command!"
         else:
             print(error)
 

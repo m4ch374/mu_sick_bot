@@ -28,19 +28,14 @@ class commandsCommon(commands.Cog, name = "Common commands"):
         help = "hello [int] (optional)",
         description = "Returns a message saying \"hello world\" as many times as the int entered"
     )
-    ## NOTE: When you do ".hello hi", the type-check fails, so it goes straight to the bot_logger errors, NOT the 'except' block.
-    ##       ALSO, u dont need the 'except' block
+    @commands.cooldown(rate = 4, per = 60, type = commands.BucketType.user)
     async def hello(self, ctx: Context, num: int = 1):
-        try:
-            if num <= 10 and num > 0:
-                await ctx.send("Hello World\n" * num)
-            elif num == 0:
-                return
-            else: 
-                await ctx.send(f"{num} is not between 0 and 10!") 
-        except:
-            await ctx.send("Please check you have entered the correct format. Run '.help [cmd]' for further info!")
-            ## ADD A COOLDOWN !!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if num <= 10 and num > 0:
+            await ctx.send("Hello World\n" * num)
+        elif num == 0:
+            return
+        else: 
+            await ctx.send(f"{num} is not between 0 and 10!")
     # ========================================
 
     # ========================================
@@ -50,7 +45,7 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     @commands.command(
         name = "echo",
         help = "echo [arg]",
-        description = "Returns a message of the arg" # change this i cannot England
+        description = "Returns the user's exact same input" # change this i cannot England XDDD
     )
     async def echo(self, ctx: Context, *, args):
         await ctx.send(args)
@@ -70,10 +65,10 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     @commands.command(
         name = "rand",
         help = "rand",
-        description = "Selects a random [common] command"
+        description = "Selects a random [common] cmd that doesn't require an arg"
     )
     async def rand(self, ctx: Context):
-        await ctx.send(args)
+        await ctx.send(None)
 
     # ========================================
     # General Helper functinos
