@@ -34,14 +34,15 @@ class commandsAPI(commands.Cog, name = "API"):
                 "Click [here](https://gist.github.com/Eskimon/02bf9b656f52381bb8ddf194a9979a2c) to see the full list of country slugs")
 
             data = ""
+            today = datetime.date.today()
+            yesterday = (today - datetime.timedelta(days = 1)).isoformat()
             if country:
                 country.lower()
-                yesterday = (datetime.date.today() - datetime.timedelta(days = 1)).isoformat()
                 get_url = f"https://api.covid19api.com/live/country/{country}/status/confirmed/date/{yesterday}T00:00:00Z"
                 data = requests.get(get_url).json()
             else:
-                get_url = "https://api.covid19api.com/summary"
-                data = requests.get(get_url).json()['Global']
+                get_url = f"https://api.covid19api.com/world?from={yesterday}T00:00:00Z&to={today}T00:00:00Z"
+                data = requests.get(get_url).json()
 
             self.gen_covid_details(embed_msg, data, country)
             
@@ -81,13 +82,13 @@ class commandsAPI(commands.Cog, name = "API"):
         embed_msg.add_field(
             name = "● Global stats",
             value = (
-                f"> Confirmed: `{data[lookup_list[0]]}`\n" + 
-                f"> Deaths: `{data[lookup_list[1]]}`\n" +
-                f"> Recovered: `{data[lookup_list[2]]}`\n" +
-                f"> Active: `{data[lookup_list[3]]}`"
+                f"> Confirmed: `{data[0][lookup_list[0]]}`\n" + 
+                f"> Deaths: `{data[0][lookup_list[1]]}`\n" +
+                f"> Recovered: `{data[0][lookup_list[2]]}`\n" +
+                f"> Active: `{data[0][lookup_list[3]]}`"
             )
         )
-        embed_msg.set_footer(text = f"Data might not be accurate | {data['Date']}")
+        embed_msg.set_footer(text = f"Data might not be accurate | {data[0]['Date']}")
     # ========================================
 
     # ========================================
