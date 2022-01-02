@@ -3,7 +3,6 @@
 
 # Import from system
 import json
-from discord.utils import get
 import requests
 import datetime
 
@@ -98,19 +97,11 @@ class commandsAPI(commands.Cog, name = "API"):
     # Returns an embed containing the anime's info
     @commands.command(
         name = "anime",
-        help = "anime [title] Optional[offset]",
+        help = "anime [title]",
         description = "Returns an embed containing the anime's info"
     )
     async def anime(self, ctx: Context, *, args: str):
-        async with ctx.typing():
-            try:
-                embed_msg = self.gen_weeb_embed(ctx, args)
-            except:
-                # Generate error embed
-                embed_msg = self.spawn_embed(ctx, title = "Oops! An error occurred.")
-                args = f"\"{args}\"" if '"' not in args else args
-                embed_msg.description = (f"{ctx.command.name.capitalize()} not found\n" +
-                    f"You might want to try: `{ctx.prefix}{ctx.command.name} {args}`")
+        embed_msg = await self.get_weeb_api_embed(ctx, args)
 
         await ctx.send(embed = embed_msg)
     # ========================================
@@ -125,7 +116,9 @@ class commandsAPI(commands.Cog, name = "API"):
         description = "Returns an embed containing the manga's info"
     )
     async def manga(self, ctx: Context, *, args: str):
-        await ctx.send(f"args: {args}")
+        embed_msg = await self.get_weeb_api_embed(ctx, args)
+
+        await ctx.send(embed = embed_msg)
     # ========================================
 
     # ========================================
@@ -133,11 +126,27 @@ class commandsAPI(commands.Cog, name = "API"):
     # ========================================
 
     # ========================================
+    # Generate embed containing info of anime / manga
+    # Returns an error embed if the process failed
+    async def get_weeb_api_embed(self, ctx: Context, args: str):
+        async with ctx.typing():
+            try:
+                embed_msg = self.gen_weeb_embed(ctx, args)
+            except Exception as e:
+                # Generate error embed
+                print(f"Error:\n{e}")
+                embed_msg = self.spawn_embed(ctx, title = "Oops! An error occurred.")
+                args = f"\"{args}\"" if '"' not in args else args
+                embed_msg.description = (f"{ctx.command.name.capitalize()} not found\n" +
+                    f"You might want to try: `{ctx.prefix}{ctx.command.name} {args}`")
+        return embed_msg
+
+    # ========================================
     # generate an embed containing info of anime / manga
     def gen_weeb_embed(self, ctx: Context, args: str):
         args.replace(" ", "%20")
 
-        get_url = f"https://kitsu.io/api/edge/anime?filter[text]={args}&page[limit]=1"
+        get_url = f"https://kitsu.io/api/edge/{ctx.command.name}?filter[text]={args}&page[limit]=1"
         data = requests.get(get_url).json()['data'][0]
         print(json.dumps(data, indent = 4))
 
@@ -148,24 +157,31 @@ class commandsAPI(commands.Cog, name = "API"):
         embed_msg.add_field(name = "Release Date", value = f"> {attr['startDate']}")
         embed_msg.add_field(name = "End Date", value = f"> {attr['endDate']}")
         embed_msg.add_field(name = "Status", value = f"> {attr['status']}")
-        embed_msg.add_field(name = "Episodes", value = f"> {attr['episodeCount']}")
-        embed_msg.add_field(name = "Runtime", value = f"> {attr['episodeLength']}")
-        embed_msg.add_field(name = "Show Type", value = f"> {attr['showType']}")
+
+        if ctx.command.name == "anime":
+            embed_msg.add_field(name = "Episodes", value = f"> {attr['episodeCount']}")
+            embed_msg.add_field(name = "Runtime", value = f"> {attr['episodeLength']}")
+            embed_msg.add_field(name = "Show Type", value = f"> {attr['showType']}")
 
         # Genres and Ratings and nsfw
         genre_list = self.get_genre(data)
         embed_msg.add_field(name = "Genre", value = f"> {', '.join(genre_list)}")
-        embed_msg.add_field(name = "NSFW", value = f"> {attr['nsfw']}")
+        embed_msg.add_field(name = "NSFW", value = "> {}".format(attr['nsfw'] if 'nsfw' in attr else "N/A"))
         embed_msg.add_field(name = "Ratings", value = f"> {attr['averageRating']}")
 
         # Description
         embed_msg.add_field(name = "Intro", value = f"{attr['description'][:300]}...")
-        embed_msg.set_thumbnail(url = attr['posterImage']['medium'])
-        embed_msg.set_image(url = attr['coverImage']['original'])
+
+        # Images
+        if attr['posterImage'] != None:
+            embed_msg.set_thumbnail(url = attr['posterImage']['medium'])
+
+        if attr['coverImage'] != None:
+            embed_msg.set_image(url = attr['coverImage']['original'])
 
         # Footer
         embed_msg.set_footer(
-            text = (f"Not the result you expected? Type {ctx.prefix}help anime"),
+            text = (f"Not the result you expected? Type {ctx.prefix}help {ctx.command.name}"),
             icon_url = ctx.bot.user.avatar_url
         )
 
