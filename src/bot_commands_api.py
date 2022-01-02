@@ -168,7 +168,7 @@ class commandsAPI(commands.Cog, name = "API"):
         # Genres and Ratings and nsfw
         genre_list = self.get_genre(data)
         embed_msg.add_field(name = "Genre", value = f"> {', '.join(genre_list)}")
-        embed_msg.add_field(name = "NSFW", value = "> {}".format(attr['nsfw'])) # if 'nsfw' in attr else "N/A"))
+        embed_msg.add_field(name = "NSFW", value = "> {}".format(attr['nsfw']) if 'nsfw' in attr else "N/A"))
         embed_msg.add_field(name = "Ratings", value = f"> {attr['averageRating']}")
 
         # Description
