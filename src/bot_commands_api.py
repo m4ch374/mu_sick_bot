@@ -5,6 +5,7 @@
 import json
 import requests
 import datetime
+import traceback
 
 # Imports form discord
 from discord.ext import commands
@@ -132,9 +133,9 @@ class commandsAPI(commands.Cog, name = "API"):
         async with ctx.typing():
             try:
                 embed_msg = self.gen_weeb_embed(ctx, args)
-            except Exception as e:
+            except:
+                traceback.print_exc()
                 # Generate error embed
-                print(f"Error:\n{e}")
                 embed_msg = self.spawn_embed(ctx, title = "Oops! An error occurred.")
                 args = f"\"{args}\"" if '"' not in args else args
                 embed_msg.description = (f"{ctx.command.name.capitalize()} not found\n" +
@@ -158,6 +159,7 @@ class commandsAPI(commands.Cog, name = "API"):
         embed_msg.add_field(name = "End Date", value = f"> {attr['endDate']}")
         embed_msg.add_field(name = "Status", value = f"> {attr['status']}")
 
+        # Episodes and runtime
         if ctx.command.name == "anime":
             embed_msg.add_field(name = "Episodes", value = f"> {attr['episodeCount']}")
             embed_msg.add_field(name = "Runtime", value = f"> {attr['episodeLength']}")
@@ -166,7 +168,7 @@ class commandsAPI(commands.Cog, name = "API"):
         # Genres and Ratings and nsfw
         genre_list = self.get_genre(data)
         embed_msg.add_field(name = "Genre", value = f"> {', '.join(genre_list)}")
-        embed_msg.add_field(name = "NSFW", value = "> {}".format(attr['nsfw'] if 'nsfw' in attr else "N/A"))
+        embed_msg.add_field(name = "NSFW", value = "> {}".format(attr['nsfw'])) # if 'nsfw' in attr else "N/A"))
         embed_msg.add_field(name = "Ratings", value = f"> {attr['averageRating']}")
 
         # Description
