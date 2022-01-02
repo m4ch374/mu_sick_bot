@@ -99,33 +99,52 @@ class commandsAPI(commands.Cog, name = "API"):
     @commands.command(
         name = "anime",
         help = "anime [title] Optional[offset]",
-        description = ("Returns an embed containing the anime's info\n\n" +
-            "Note: Set offset equates to index of the search result\n" +
-            "Used when the command gives out unexpected search results\n"+
-            "e.g. 0 is the first result, 1 is the second, etc...")
+        description = "Returns an embed containing the anime's info"
     )
-    async def anime(self, ctx: Context, *, args: str, offset: int = 0):
+    async def anime(self, ctx: Context, *, args: str):
         async with ctx.typing():
             try:
-                embed_msg = self.gen_anime_embed(ctx, args, offset)
+                embed_msg = self.gen_weeb_embed(ctx, args)
             except:
+                # Generate error embed
                 embed_msg = self.spawn_embed(ctx, title = "Oops! An error occurred.")
                 args = f"\"{args}\"" if '"' not in args else args
-                embed_msg.description = ("Anime not found\n" +
-                        f"Or you might want to try: `{ctx.prefix}anime {args}`")
+                embed_msg.description = (f"{ctx.command.name.capitalize()} not found\n" +
+                    f"You might want to try: `{ctx.prefix}{ctx.command.name} {args}`")
 
         await ctx.send(embed = embed_msg)
+    # ========================================
 
-    def gen_anime_embed(self, ctx: Context, args: str, offset: int = 0):
+    # ========================================
+    # Manga command
+    # Usage: manga [title] Optional[offset]
+    # Returns an embed containing the manga's info
+    @commands.command(
+        name = "manga",
+        help = "manga [title]",
+        description = "Returns an embed containing the manga's info"
+    )
+    async def manga(self, ctx: Context, *, args: str):
+        await ctx.send(f"args: {args}")
+    # ========================================
+
+    # ========================================
+    # Helper function for anime and manga cmd
+    # ========================================
+
+    # ========================================
+    # generate an embed containing info of anime / manga
+    def gen_weeb_embed(self, ctx: Context, args: str):
         args.replace(" ", "%20")
 
-        get_url = f"https://kitsu.io/api/edge/anime?filter[text]={args}&page[limit]=1&page[offset]={offset}"
+        get_url = f"https://kitsu.io/api/edge/anime?filter[text]={args}&page[limit]=1"
         data = requests.get(get_url).json()['data'][0]
         print(json.dumps(data, indent = 4))
 
         # Attributes
         attr = data['attributes']
-        embed_msg = self.spawn_embed(ctx, title = f"{attr['titles']['en']} | {attr['titles']['ja_jp']}")
+        english_title = attr['titles']['en'] if 'en' in attr['titles'] else attr['titles']['en_jp']
+        embed_msg = self.spawn_embed(ctx, title = f"{english_title} | {attr['titles']['ja_jp']}")
         embed_msg.add_field(name = "Release Date", value = f"> {attr['startDate']}")
         embed_msg.add_field(name = "End Date", value = f"> {attr['endDate']}")
         embed_msg.add_field(name = "Status", value = f"> {attr['status']}")
@@ -162,7 +181,6 @@ class commandsAPI(commands.Cog, name = "API"):
             return ["N/A"]
         else:
             return [item['attributes']['name'] for item in genres['data']]
-
     # ========================================
 
     # ========================================
