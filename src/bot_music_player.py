@@ -13,7 +13,7 @@ from discord.ext import commands
 from discord.ext.commands.bot import Bot
 from discord.ext.commands.context import Context
 from discord.embeds import Embed
-from discord import FFmpegPCMAudio
+from discord import FFmpegOpusAudio
 
 def setup(bot: Bot):
     bot.add_cog(commandsMusick())
@@ -51,7 +51,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         print(json.dumps(vid_info, indent = 4))
         vc = await ctx.author.voice.channel.connect()
         try:
-            vc.play(FFmpegPCMAudio(source = vid_info['formats'][0]['url']))
+            vc.play(FFmpegOpusAudio(source = vid_info['formats'][0]['url']))
         except Exception as e:
             error_embed = self.spawn_error_embed(ctx, e.args[0])
             return await ctx.send(embed = error_embed)
