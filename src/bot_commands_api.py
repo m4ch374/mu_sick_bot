@@ -125,7 +125,7 @@ class commandsAPI(commands.Cog, name = "API"):
 
         # Attributes
         attr = data['attributes']
-        embed_msg = self.spawn_embed(ctx, title = f"{attr['titles']['en_jp']} | {attr['titles']['ja_jp']}")
+        embed_msg = self.spawn_embed(ctx, title = f"{attr['titles']['en']} | {attr['titles']['ja_jp']}")
         embed_msg.add_field(name = "Release Date", value = f"> {attr['startDate']}")
         embed_msg.add_field(name = "End Date", value = f"> {attr['endDate']}")
         embed_msg.add_field(name = "Status", value = f"> {attr['status']}")
