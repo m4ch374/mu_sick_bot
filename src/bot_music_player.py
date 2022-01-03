@@ -44,16 +44,16 @@ class commandsMusick(commands.Cog, name = "Music"):
                 'audioformat': 'ogg',
                 'noplaylist': True,
                 'simulate': True,
-                'default_search': 'ytsearch1'
+                'default_search': 'ytsearch1',
+                'preferffmpeg': True
             }
             await self.process_play_audio(ctx, link, ydl_opts)
 
         except Exception as e:
-            self.queue.clean()
-
             if ctx.voice_client != None and not self.queue.empty():
                 await ctx.voice_client.disconnect()
 
+            self.queue.clean()
             traceback.print_exc()
 
             error_embed = self.spawn_error_embed(ctx, e.args[0])
@@ -76,14 +76,16 @@ class commandsMusick(commands.Cog, name = "Music"):
     # Returns video info in json string, prints error message if failed
     def queue_vdo_info(self, link: str, ydl_opts):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            vid_info = ydl.extract_info(url = link)
+            vid_info = ydl.extract_info(url = link, download = False)
 
         print(json.dumps(vid_info, indent = 4))
         self.queue.queue(vid_info)
 
     async def play_audio(self, ctx: Context, vc):
         if not self.queue.empty() and not vc.is_playing():
-            vid_meta = self.queue.dequeue()
+            await self.np(ctx)
+
+            vid_meta = self.queue.first()
 
             song_src = await FFmpegOpusAudio.from_probe(
                 source = vid_meta.url,
@@ -94,9 +96,15 @@ class commandsMusick(commands.Cog, name = "Music"):
                 song_src,
                 after = lambda e: self.music_after(ctx)
             )
+        else :
+            embed_msg = self.spawn_embed(ctx, title = "Added to quque")
+            embed_msg.description = f"Queued `{self.queue.last().title}`"
+            await ctx.send(embed = embed_msg)
     
     # Funtion to run after music is finished
     def music_after(self, ctx: Context):
+        self.queue.dequeue()
+
         if self.queue.empty():
             asyncio.run_coroutine_threadsafe(ctx.send("finished playing"), ctx.bot.loop)
             asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(), ctx.bot.loop)
@@ -119,7 +127,87 @@ class commandsMusick(commands.Cog, name = "Music"):
             error_embed = self.spawn_error_embed(ctx, "Not in a voice channel.")
             return await ctx.send(embed = error_embed)
 
+        self.queue.clean()
         await ctx.voice_client.disconnect()
+    # ========================================
+
+    # ========================================
+    # now playing command
+    # Usage: np
+    # Displays the current playing song
+    # ========================================
+    @commands.command(
+        name = "np",
+        help = "np",
+        description = "Display the current song"
+    )
+    async def np(self, ctx: Context):
+        embed_msg = self.spawn_embed(ctx, title = "Now Playing")
+
+        if self.queue.empty():
+            embed_msg.description = "There are no songs currently playing"
+        else:
+            curr_song = self.queue.first()
+            embed_msg.description = (
+                f"**{curr_song.title}**\n"
+                f"Duration: `{curr_song.get_time()}`"
+            )
+
+        await ctx.send(embed = embed_msg)
+
+    # ========================================
+    # queue command
+    # Usage: queue
+    # Displays the current queue
+    @commands.command(
+        name = "queue",
+        help = "queue",
+        description = "Displays the current queue"
+    )
+    async def queue(self, ctx: Context):
+        embed_msg = self.spawn_embed(ctx, title = "Music queue")
+
+        if self.queue.empty():
+            embed_msg.description = "There are currently no songs in queue"
+        else:
+            q_list = self.queue.dump()
+            embed_msg.description = f"There are {len(q_list)} songs in queue"
+
+            for i in range(0, len(q_list)):
+                song = q_list[i]
+
+                embed_msg.add_field(
+                    name = f"{i + 1}. {song.title}",
+                    value = f"Duration: {song.get_time()}",
+                    inline = False
+                )
+
+        await ctx.send(embed = embed_msg)
+    # ========================================
+    
+    # ========================================
+    # skip command
+    # Usage: skip
+    # Skips the current song
+    @commands.command(
+        name = "skip",
+        help = "skip",
+        description = "Skips the curret song"
+    )
+    async def skip(self, ctx: Context):
+        embed_msg = self.spawn_embed(ctx, title = "Skip")
+
+        if self.queue.empty():
+            embed_msg.description = "There are currently no songs playing"
+        else:
+            curr_music = self.queue.first()
+            embed_msg.description = f"Skipping: `{curr_music.title}`"
+            await ctx.send(embed = embed_msg)
+
+            ctx.voice_client.pause()
+            self.queue.dequeue()
+            await self.play_audio(ctx, ctx.voice_client)
+    # ========================================
 
     # ========================================
     # General helper function
@@ -158,9 +246,7 @@ class musicQueue():
         self.queue_list.append(youtubeVidMeta(data))
 
     def dequeue(self):
-        vid_meta = self.queue_list[0]
         self.queue_list.pop(0)
-        return vid_meta
 
     def dump(self):
         return [vid_meta for vid_meta in self.queue_list]
@@ -171,6 +257,12 @@ class musicQueue():
     def clean(self):
         self.queue_list.clear()
 
+    def first(self):
+        return self.queue_list[0]
+
+    def last(self):
+        return self.queue_list[-1]
+
 # A class representing a youtube video
 # Contains metadata such as title, url, etc...
 class youtubeVidMeta():
@@ -178,6 +270,10 @@ class youtubeVidMeta():
         self.url = data['formats'][0]['url']
         self.duration = data['duration']
         self.title = data['title']
+
+    def get_time(self):
+        m, s = divmod(self.duration, 60)
+        return "{:02d}:{:02d}".format(m, s)
 
     def printData(self):
         print(f"Title: {self.title}")
