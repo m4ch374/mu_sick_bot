@@ -20,6 +20,9 @@ def setup(bot: Bot):
     bot.add_cog(commandsMusick())
 
 class commandsMusick(commands.Cog, name = "Music"):
+    # Initalizer
+    def __init__(self):
+        self.queue = musicQueue()
 
     # ========================================
     # Play command
@@ -46,6 +49,8 @@ class commandsMusick(commands.Cog, name = "Music"):
             await self.process_play_audio(ctx, link, ydl_opts)
 
         except Exception as e:
+            self.queue.clean()
+
             if ctx.voice_client != None:
                 await ctx.voice_client.disconnect()
 
@@ -56,7 +61,7 @@ class commandsMusick(commands.Cog, name = "Music"):
 
     # Wrapper for playing the youtube link
     async def process_play_audio(self, ctx: Context, link: str, ydl_opts):
-        vid_info = await self.get_vdo_info(ctx, link, ydl_opts)
+        self.queue_vdo_info(link, ydl_opts)
 
         # Error checking
         if ctx.author.voice == None:
@@ -64,30 +69,39 @@ class commandsMusick(commands.Cog, name = "Music"):
             return await ctx.send(embed = error_embed)
 
         # Connect and play audio
-        print(json.dumps(vid_info, indent = 4))
-        vc = await ctx.author.voice.channel.connect()
+        vc = await ctx.author.voice.channel.connect() if not ctx.voice_client else ctx.voice_client
 
-        song_src = await FFmpegOpusAudio.from_probe(
-            source = vid_info['formats'][0]['url'],
-            before_options = '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-            options = '-vn'
-        )
-        vc.play(
-            song_src,
-            after = lambda e: self.music_after(ctx)
-        )
+        await self.play_audio(ctx, vc)
 
     # Returns video info in json string, prints error message if failed
-    async def get_vdo_info(self, ctx: Context, link: str, ydl_opts):
+    def queue_vdo_info(self, link: str, ydl_opts):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             vid_info = ydl.extract_info(url = link)
 
-        return vid_info
+        print(json.dumps(vid_info, indent = 4))
+        self.queue.queue(vid_info)
+
+    async def play_audio(self, ctx: Context, vc):
+        if not self.queue.empty() and not vc.is_playing():
+            vid_meta = self.queue.dequeue()
+
+            song_src = await FFmpegOpusAudio.from_probe(
+                source = vid_meta.url,
+                before_options = '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                options = '-vn'
+            )
+            vc.play(
+                song_src,
+                after = lambda e: self.music_after(ctx)
+            )
     
     # Funtion to run after music is finished
     def music_after(self, ctx: Context):
-        asyncio.run_coroutine_threadsafe(ctx.send("finished playing"), ctx.bot.loop)
-        asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(), ctx.bot.loop)
+        if self.queue.empty():
+            asyncio.run_coroutine_threadsafe(ctx.send("finished playing"), ctx.bot.loop)
+            asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(), ctx.bot.loop)
+        else:
+            asyncio.run_coroutine_threadsafe(self.play_audio(ctx, ctx.voice_client), ctx.bot.loop)
 
     # ========================================
 
@@ -134,3 +148,38 @@ class commandsMusick(commands.Cog, name = "Music"):
         embed_msg.description = description
         return embed_msg
     # ========================================
+
+# A queue system for the music bot
+class musicQueue():
+    def __init__(self):
+        self.queue_list = []
+
+    def queue(self, data):
+        self.queue_list.append(youtubeVidMeta(data))
+
+    def dequeue(self):
+        vid_meta = self.queue_list[0]
+        self.queue_list.pop(0)
+        return vid_meta
+
+    def dump(self):
+        return [vid_meta for vid_meta in self.queue_list]
+    
+    def empty(self):
+        return len(self.queue_list) == 0
+
+    def clean(self):
+        self.queue_list.clear()
+
+# A class representing a youtube video
+# Contains metadata such as title, url, etc...
+class youtubeVidMeta():
+    def __init__(self, data):
+        self.url = data['formats'][0]['url']
+        self.duration = data['duration']
+        self.title = data['title']
+
+    def printData(self):
+        print(f"Title: {self.title}")
+        print(f"Duration: {self.duration}")
+        print(f"Url: {self.url}")
