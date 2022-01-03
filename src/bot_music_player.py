@@ -30,7 +30,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         help = "play [url]",
         description = "Plays a youtube vido on discord"
     )
-    async def play(self, ctx: Context, link: str):
+    async def play(self, ctx: Context, *, link: str):
         link = link.strip(" <>")
         try:
             # youtube dl options
@@ -40,10 +40,10 @@ class commandsMusick(commands.Cog, name = "Music"):
                 'audioformat': 'ogg',
                 'noplaylist': True,
                 'simulate': True,
-                'default_search': 'auto'
+                'default_search': 'ytsearch1'
             }
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                vid_info = ydl.extract_info(url = link, download = False)
+                vid_info = ydl.extract_info(url = link)
         except:
             traceback.print_exc()
             
