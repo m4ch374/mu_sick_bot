@@ -44,10 +44,12 @@ class commandsMusick(commands.Cog, name = "Music"):
                 'default_search': 'ytsearch1'
             }
             await self.process_play_audio(ctx, link, ydl_opts)
-            
+
         except Exception as e:
             if ctx.voice_client != None:
                 await ctx.voice_client.disconnect()
+
+            traceback.print_exc()
 
             error_embed = self.spawn_error_embed(ctx, e.args[0])
             return await ctx.send(embed = error_embed)
