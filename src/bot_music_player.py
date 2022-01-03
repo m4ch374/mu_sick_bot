@@ -31,8 +31,13 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     async def play(self, ctx: Context, link: str):
         try:
-            # An empty option
-            ydl_opts = {}
+            # youtube dl options
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'extractaudio': True,
+                'audioformat': 'ogg',
+                'noplaylist': True
+            }
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 vid_info = ydl.extract_info(
                     url = link,
@@ -51,8 +56,17 @@ class commandsMusick(commands.Cog, name = "Music"):
         print(json.dumps(vid_info, indent = 4))
         vc = await ctx.author.voice.channel.connect()
         try:
-            vc.play(FFmpegOpusAudio(source = vid_info['formats'][0]['url']))
+            vc.play(
+                FFmpegOpusAudio(
+                    source = vid_info['formats'][0]['url'],
+                    before_options = '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                    options = '-vn'
+                )
+            )
         except Exception as e:
+            if ctx.voice_client != None:
+                await ctx.voice_client.disconnect()
+
             error_embed = self.spawn_error_embed(ctx, e.args[0])
             return await ctx.send(embed = error_embed)
     # ========================================
