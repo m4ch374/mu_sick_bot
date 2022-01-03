@@ -51,7 +51,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         except Exception as e:
             self.queue.clean()
 
-            if ctx.voice_client != None:
+            if ctx.voice_client != None and not self.queue.empty():
                 await ctx.voice_client.disconnect()
 
             traceback.print_exc()
