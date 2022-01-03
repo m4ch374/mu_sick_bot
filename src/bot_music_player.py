@@ -2,6 +2,7 @@
 # Command dosent require any permission
 
 # Import from system
+from enum import auto
 import json
 import traceback
 
@@ -30,20 +31,20 @@ class commandsMusick(commands.Cog, name = "Music"):
         description = "Plays a youtube vido on discord"
     )
     async def play(self, ctx: Context, link: str):
+        link = link.strip(" <>")
         try:
             # youtube dl options
             ydl_opts = {
                 'format': 'bestaudio/best',
                 'extractaudio': True,
                 'audioformat': 'ogg',
-                'noplaylist': True
+                'noplaylist': True,
+                'simulate': True,
+                'default_search': 'auto'
             }
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                vid_info = ydl.extract_info(
-                    url = link,
-                    download = False
-                )
-        except Exception as e:
+                vid_info = ydl.extract_info(url = link, download = False)
+        except:
             traceback.print_exc()
             
             error_embed = self.spawn_error_embed(ctx, "Make sure your enter a valid link!")

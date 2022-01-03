@@ -145,8 +145,6 @@ class commandsAPI(commands.Cog, name = "API"):
     # ========================================
     # generate an embed containing info of anime / manga
     def gen_weeb_embed(self, ctx: Context, args: str):
-        args.replace(" ", "%20")
-
         get_url = f"https://kitsu.io/api/edge/{ctx.command.name}?filter[text]={args}&page[limit]=1"
         data = requests.get(get_url).json()['data'][0]
         print(json.dumps(data, indent = 4))
