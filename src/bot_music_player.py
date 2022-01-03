@@ -2,7 +2,7 @@
 # Command dosent require any permission
 
 # Import from system
-from enum import auto
+import asyncio
 import json
 import traceback
 
@@ -32,6 +32,7 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     async def play(self, ctx: Context, *, link: str):
         link = link.strip(" <>")
+        
         try:
             # youtube dl options
             ydl_opts = {
@@ -42,34 +43,50 @@ class commandsMusick(commands.Cog, name = "Music"):
                 'simulate': True,
                 'default_search': 'ytsearch1'
             }
-            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                vid_info = ydl.extract_info(url = link)
-        except:
-            traceback.print_exc()
+            await self.process_play_audio(ctx, link, ydl_opts)
             
-            error_embed = self.spawn_error_embed(ctx, "Make sure your enter a valid link!")
-            return await ctx.send(embed = error_embed)
-
-        if ctx.author.voice == None:
-            error_embed = self.spawn_error_embed(ctx, "Voice channel not found.")
-            return await ctx.send(embed = error_embed)
-
-        print(json.dumps(vid_info, indent = 4))
-        vc = await ctx.author.voice.channel.connect()
-        try:
-            vc.play(
-                FFmpegOpusAudio(
-                    source = vid_info['formats'][0]['url'],
-                    before_options = '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-                    options = '-vn'
-                )
-            )
         except Exception as e:
             if ctx.voice_client != None:
                 await ctx.voice_client.disconnect()
 
             error_embed = self.spawn_error_embed(ctx, e.args[0])
             return await ctx.send(embed = error_embed)
+
+    # Wrapper for playing the youtube link
+    async def process_play_audio(self, ctx: Context, link: str, ydl_opts):
+        vid_info = await self.get_vdo_info(ctx, link, ydl_opts)
+
+        # Error checking
+        if ctx.author.voice == None:
+            error_embed = self.spawn_error_embed(ctx, "Voice channel not found.")
+            return await ctx.send(embed = error_embed)
+
+        # Connect and play audio
+        print(json.dumps(vid_info, indent = 4))
+        vc = await ctx.author.voice.channel.connect()
+
+        song_src = await FFmpegOpusAudio.from_probe(
+            source = vid_info['formats'][0]['url'],
+            before_options = '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+            options = '-vn'
+        )
+        vc.play(
+            song_src,
+            after = lambda e: self.music_after(ctx)
+        )
+
+    # Returns video info in json string, prints error message if failed
+    async def get_vdo_info(self, ctx: Context, link: str, ydl_opts):
+        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+            vid_info = ydl.extract_info(url = link)
+
+        return vid_info
+    
+    # Funtion to run after music is finished
+    def music_after(self, ctx: Context):
+        asyncio.run_coroutine_threadsafe(ctx.send("finished playing"), ctx.bot.loop)
+        asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(), ctx.bot.loop)
+
     # ========================================
 
     # ========================================
