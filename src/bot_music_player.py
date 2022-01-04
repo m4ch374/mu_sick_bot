@@ -19,6 +19,30 @@ from discord import FFmpegOpusAudio
 def setup(bot: Bot):
     bot.add_cog(commandsMusick())
 
+# ========================================
+# Checks
+# ========================================
+
+def check_voice_channel():
+    def predicate(ctx: Context):
+        # Error checking
+        if ctx.author.voice == None:
+            asyncio.run_coroutine_threadsafe(
+                ctx.send("Not in voice channel"), 
+                ctx.bot.loop
+            )
+            return False
+
+        if ctx.voice_client and ctx.author.voice.channel != ctx.voice_client.channel:
+            asyncio.run_coroutine_threadsafe(
+                ctx.send("Not in same voice channel"),
+                ctx.bot.loop
+            )
+            return False
+        
+        return True
+    return commands.check(predicate)
+
 class commandsMusick(commands.Cog, name = "Music"):
     # Initalizer
     def __init__(self):
@@ -33,6 +57,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         help = "play [url]",
         description = "Plays a youtube vido on discord"
     )
+    @check_voice_channel()
     async def play(self, ctx: Context, *, link: str):
         # Remove unwanted head and tail characters
         link = link.strip(" <>")
@@ -68,11 +93,6 @@ class commandsMusick(commands.Cog, name = "Music"):
     async def process_play_audio(self, ctx: Context, link: str, ydl_opts):
         # Add video to queue
         self.queue_vdo_info(link, ydl_opts)
-
-        # Error checking
-        if ctx.author.voice == None:
-            error_embed = self.spawn_error_embed(ctx, "Voice channel not found.")
-            return await ctx.send(embed = error_embed)
 
         # Connect and play audio
         vc = await ctx.author.voice.channel.connect() if not ctx.voice_client else ctx.voice_client
@@ -143,6 +163,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         help = "disconnect",
         description = "Disconnects from a voice channel"
     )
+    @check_voice_channel()
     async def disconnect(self, ctx: Context):
         # Sends error message if bot is not in voice channel
         if ctx.voice_client == None:
@@ -163,6 +184,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         help = "np",
         description = "Display the current song"
     )
+    @check_voice_channel()
     async def np(self, ctx: Context):
         embed_msg = self.spawn_embed(ctx, title = "Now Playing")
 
@@ -187,6 +209,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         help = "queue",
         description = "Displays the current queue"
     )
+    @check_voice_channel()
     async def queue(self, ctx: Context):
         embed_msg = self.spawn_embed(ctx, title = "Music queue")
 
@@ -203,7 +226,7 @@ class commandsMusick(commands.Cog, name = "Music"):
 
                 embed_msg.add_field(
                     name = f"{i + 1}. {song.title}",
-                    value = f"Duration: {song.get_time()}",
+                    value = f"Duration: `{song.get_time()}`",
                     inline = False
                 )
 
@@ -219,6 +242,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         help = "skip",
         description = "Skips the curret song"
     )
+    @check_voice_channel()
     async def skip(self, ctx: Context):
         embed_msg = self.spawn_embed(ctx, title = "Skip")
 
@@ -229,11 +253,12 @@ class commandsMusick(commands.Cog, name = "Music"):
             # Constructs embed message
             curr_music = self.queue.first()
             embed_msg.description = f"Skipping: `{curr_music.title}`"
-            await ctx.send(embed = embed_msg)
 
             # skips the current music and play the next one
             ctx.voice_client.pause()
             self.music_after(ctx)
+
+        await ctx.send(embed = embed_msg)
     # ========================================
 
     # ========================================
