@@ -50,10 +50,10 @@ class commandsMusick(commands.Cog, name = "Music"):
             await self.process_play_audio(ctx, link, ydl_opts)
 
         except Exception as e:
-            if ctx.voice_client != None and not self.queue.empty():
+            if ctx.voice_client != None and type(e).__name__ != "KeyError":
+                self.queue.clean()
                 await ctx.voice_client.disconnect()
 
-            self.queue.clean()
             traceback.print_exc()
 
             error_embed = self.spawn_error_embed(ctx, e.args[0])
