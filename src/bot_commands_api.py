@@ -34,11 +34,12 @@ class commandsAPI(commands.Cog, name = "API"):
             embed_msg.description = (f"For more info: `{ctx.prefix}covid [country_slug]`\n" + 
                 "Click [here](https://gist.github.com/Eskimon/02bf9b656f52381bb8ddf194a9979a2c) to see the full list of country slugs")
 
+            # Get data between time interval: yesterday - today
             data = ""
             today = datetime.date.today()
             yesterday = (today - datetime.timedelta(days = 1)).isoformat()
             if country:
-                country.lower()
+                country = country.lower()
                 get_url = f"https://api.covid19api.com/live/country/{country}/status/confirmed/date/{yesterday}T00:00:00Z"
                 data = requests.get(get_url).json()
             else:
@@ -51,6 +52,8 @@ class commandsAPI(commands.Cog, name = "API"):
 
     # Helper function, generates embed contents
     def gen_covid_details(self, embed_msg: Embed, data, is_country: bool):
+
+        # If data is null or no item in data
         if data == None or len(data) == 0:
             embed_msg.add_field(
                 name = "Error fetching data",
@@ -188,6 +191,7 @@ class commandsAPI(commands.Cog, name = "API"):
         return embed_msg
 
     # Helper function, returns the genre of the anime
+    # Returns list only contains "N/A" if there are no genres
     def get_genre(self, data):
         get_url = data['relationships']['genres']['links']['related']
         genres = requests.get(get_url).json()

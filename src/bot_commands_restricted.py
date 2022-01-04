@@ -54,13 +54,16 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
     )
     async def setPrefix(self, ctx: Context, *, new_prefix: str):
         # Remove head and tail whitespace
-        new_prefix.strip()
+        new_prefix = new_prefix.strip()
 
+        # Mentions starts with "<@!"
         if "<@!" in new_prefix:
             return await ctx.send("Cannot set prefix as user")
 
+        # Change the new prefix in json
         self.modify_json_prefix(new_prefix)
         
+        # Change the new prefix for the bot
         ctx.bot.command_prefix = new_prefix
         await ctx.send(f"Prefix updated to `{new_prefix}`")
 
@@ -108,6 +111,8 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
     )
     async def kick(self, ctx: Context, member: Member, *, args: str=None):
         mem_name = member.display_name
+
+        # kick with reason if reason is provided, only kicks otherwise
         await member.kick(reason = args) if args != None else await member.kick()
         await ctx.send(f"Users: `{mem_name}` has been kicked")
     # ========================================
@@ -123,6 +128,8 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
     )
     async def ban(self, ctx: Context, member: Member, *, args: str=None):
         mem_name = member.display_name
+
+        # ban with reason if reason is provided, only bans otherwise
         await member.ban(reason = args) if args != None else await member.ban()
         await ctx.send(f"Users: `{' '.join(mem_name)}` has been banned")
     # ========================================

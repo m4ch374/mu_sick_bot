@@ -34,6 +34,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         description = "Plays a youtube vido on discord"
     )
     async def play(self, ctx: Context, *, link: str):
+        # Remove unwanted head and tail characters
         link = link.strip(" <>")
         
         try:
@@ -50,17 +51,22 @@ class commandsMusick(commands.Cog, name = "Music"):
             await self.process_play_audio(ctx, link, ydl_opts)
 
         except Exception as e:
+            # Only disconnects when the error is not key error
+            # and there is a voice client
             if ctx.voice_client != None and type(e).__name__ != "KeyError":
                 self.queue.clean()
                 await ctx.voice_client.disconnect()
 
+            # Prints traceback
             traceback.print_exc()
 
+            # Send error embed
             error_embed = self.spawn_error_embed(ctx, e.args[0])
             return await ctx.send(embed = error_embed)
 
     # Wrapper for playing the youtube link
     async def process_play_audio(self, ctx: Context, link: str, ydl_opts):
+        # Add video to queue
         self.queue_vdo_info(link, ydl_opts)
 
         # Error checking
@@ -81,20 +87,29 @@ class commandsMusick(commands.Cog, name = "Music"):
         print(json.dumps(vid_info, indent = 4))
         self.queue.queue(vid_info)
 
+    # Plays audio from queue
     async def play_audio(self, ctx: Context, vc):
+        # Plays when queue is not empty and bot is not playing any audio
+        # Shows an embed queueing the video otherwise
         if not self.queue.empty() and not vc.is_playing():
+            # Shows the current playing video
             await self.np(ctx)
 
             vid_meta = self.queue.first()
 
+            # Audio source, using FFmpegOpusAudio
+            # Reconnects immediately on disconnect (before_options)
             song_src = await FFmpegOpusAudio.from_probe(
                 source = vid_meta.url,
                 before_options = '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
                 options = '-vn'
             )
+
+            # Plays the audio in discord voice channel
+            # Note: vc means voice client
             vc.play(
                 song_src,
-                after = lambda e: self.music_after(ctx)
+                after = lambda e: self.music_after(ctx) # e as in error
             )
         else :
             embed_msg = self.spawn_embed(ctx, title = "Added to quque")
@@ -103,8 +118,14 @@ class commandsMusick(commands.Cog, name = "Music"):
     
     # Funtion to run after music is finished
     def music_after(self, ctx: Context):
+        # Dequeue the current song
         self.queue.dequeue()
 
+        # Disconnect and send message if the queue has ended
+        # plays the next song otherwise
+        #
+        # Note: using asyncio cuz this function is not async but the code it runs
+        # has to be awaited
         if self.queue.empty():
             asyncio.run_coroutine_threadsafe(ctx.send("finished playing"), ctx.bot.loop)
             asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(), ctx.bot.loop)
@@ -123,6 +144,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         description = "Disconnects from a voice channel"
     )
     async def disconnect(self, ctx: Context):
+        # Sends error message if bot is not in voice channel
         if ctx.voice_client == None:
             error_embed = self.spawn_error_embed(ctx, "Not in a voice channel.")
             return await ctx.send(embed = error_embed)
@@ -144,6 +166,7 @@ class commandsMusick(commands.Cog, name = "Music"):
     async def np(self, ctx: Context):
         embed_msg = self.spawn_embed(ctx, title = "Now Playing")
 
+        # Sends error message if the queue is empty
         if self.queue.empty():
             embed_msg.description = "There are no songs currently playing"
         else:
@@ -167,12 +190,14 @@ class commandsMusick(commands.Cog, name = "Music"):
     async def queue(self, ctx: Context):
         embed_msg = self.spawn_embed(ctx, title = "Music queue")
 
+        # Sends error message if the queue is empty
         if self.queue.empty():
             embed_msg.description = "There are currently no songs in queue"
         else:
             q_list = self.queue.dump()
             embed_msg.description = f"There are {len(q_list)} songs in queue"
 
+            # Adds field for each song in queue
             for i in range(0, len(q_list)):
                 song = q_list[i]
 
@@ -197,13 +222,16 @@ class commandsMusick(commands.Cog, name = "Music"):
     async def skip(self, ctx: Context):
         embed_msg = self.spawn_embed(ctx, title = "Skip")
 
+        # Sends error message if queue is empty
         if self.queue.empty():
             embed_msg.description = "There are currently no songs playing"
         else:
+            # Constructs embed message
             curr_music = self.queue.first()
             embed_msg.description = f"Skipping: `{curr_music.title}`"
             await ctx.send(embed = embed_msg)
 
+            # skips the current music and play the next one
             ctx.voice_client.pause()
             self.queue.dequeue()
             await self.play_audio(ctx, ctx.voice_client)
@@ -242,24 +270,31 @@ class musicQueue():
     def __init__(self):
         self.queue_list = []
 
+    # Queues in a list
     def queue(self, data):
         self.queue_list.append(youtubeVidMeta(data))
 
+    # Dequeues the first item in list
     def dequeue(self):
         self.queue_list.pop(0)
 
+    # Returns a copy of the list
     def dump(self):
         return [vid_meta for vid_meta in self.queue_list]
     
+    # Check if list is empty
     def empty(self):
         return len(self.queue_list) == 0
 
+    # Remove all item in list
     def clean(self):
         self.queue_list.clear()
 
+    # Returns the first item in list
     def first(self):
         return self.queue_list[0]
 
+    # Returns the last item in list
     def last(self):
         return self.queue_list[-1]
 
@@ -271,10 +306,12 @@ class youtubeVidMeta():
         self.duration = data['duration']
         self.title = data['title']
 
+    # Display the duration in mm:ss format
     def get_time(self):
         m, s = divmod(self.duration, 60)
         return "{:02d}:{:02d}".format(m, s)
 
+    # Prints data, for debugging
     def printData(self):
         print(f"Title: {self.title}")
         print(f"Duration: {self.duration}")

@@ -59,6 +59,8 @@ class customHelpCmd(commands.HelpCommand):
     # Returns an embed with the commands that the cog contains
     async def send_cog_help(self, cog: commands.Cog):
         cmd_list = cog.get_commands()
+
+        # Sends an error message if the cog has no commands in it
         if len(cmd_list) == 0:
             return await self.send_error_message(commands.CommandNotFound)
 
@@ -81,6 +83,7 @@ class customHelpCmd(commands.HelpCommand):
     # i.e. <prefix> help [command_not_in_cogs]
     # Returns an error message
     async def send_error_message(self, error: CommandError):
+        # starts form index 1 cuz index 0 is `help`
         arg_str = ' '.join(self.context.message.content.split(' ')[1:])
         embed_msg = self.spawn_help_template(
             title = "Command not found",
