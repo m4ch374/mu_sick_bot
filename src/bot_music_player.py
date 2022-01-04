@@ -233,8 +233,7 @@ class commandsMusick(commands.Cog, name = "Music"):
 
             # skips the current music and play the next one
             ctx.voice_client.pause()
-            self.queue.dequeue()
-            await self.play_audio(ctx, ctx.voice_client)
+            self.music_after(ctx)
     # ========================================
 
     # ========================================
