@@ -182,7 +182,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         # Stops playing and disconnect
         ctx.voice_client.pause()
         await ctx.voice_client.disconnect()
-        await ctx.send("✂️ Disconnected")
+        await ctx.send("✂️ **Disconnected**")
     # ========================================
 
     # ========================================
