@@ -28,14 +28,14 @@ def check_voice_channel():
         # Error checking
         if ctx.author.voice == None:
             asyncio.run_coroutine_threadsafe(
-                ctx.send("Not in voice channel"), 
+                ctx.send("❌ **Not in voice channel**"), 
                 ctx.bot.loop
             )
             return False
 
         if ctx.voice_client and ctx.author.voice.channel != ctx.voice_client.channel:
             asyncio.run_coroutine_threadsafe(
-                ctx.send("Not in same voice channel"),
+                ctx.send("❌ **Not in same voice channel**"),
                 ctx.bot.loop
             )
             return False
@@ -55,7 +55,7 @@ class commandsMusick(commands.Cog, name = "Music"):
     @commands.command(
         name = "play",
         help = "play [url]",
-        description = "Plays a youtube vido on discord"
+        description = "Plays a youtube video on discord"
     )
     @check_voice_channel()
     async def play(self, ctx: Context, *, link: str):
@@ -138,8 +138,13 @@ class commandsMusick(commands.Cog, name = "Music"):
     
     # Funtion to run after music is finished
     def music_after(self, ctx: Context):
+        # Do not execute this function if vc is paused
+        if ctx.voice_client.is_paused():
+            return
+
         # Dequeue the current song
-        self.queue.dequeue()
+        if not self.queue.empty():
+            self.queue.dequeue()
 
         # Disconnect and send message if the queue has ended
         # plays the next song otherwise
@@ -147,7 +152,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         # Note: using asyncio cuz this function is not async but the code it runs
         # has to be awaited
         if self.queue.empty():
-            asyncio.run_coroutine_threadsafe(ctx.send("finished playing"), ctx.bot.loop)
+            asyncio.run_coroutine_threadsafe(ctx.send("🍕 **Finished playing**"), ctx.bot.loop)
             asyncio.run_coroutine_threadsafe(ctx.voice_client.disconnect(), ctx.bot.loop)
         else:
             asyncio.run_coroutine_threadsafe(self.play_audio(ctx, ctx.voice_client), ctx.bot.loop)
@@ -170,8 +175,14 @@ class commandsMusick(commands.Cog, name = "Music"):
             error_embed = self.spawn_error_embed(ctx, "Not in a voice channel.")
             return await ctx.send(embed = error_embed)
 
-        self.queue.clean()
+        # Remove all item in queue
+        if not self.queue.empty():
+            self.queue.clean()
+
+        # Stops playing and disconnect
+        ctx.voice_client.pause()
         await ctx.voice_client.disconnect()
+        await ctx.send("✂️ Disconnected")
     # ========================================
 
     # ========================================
