@@ -121,8 +121,8 @@ class commandsMusick(commands.Cog, name = "Music"):
             # Reconnects immediately on disconnect (before_options)
             song_src = await FFmpegOpusAudio.from_probe(
                 source = vid_meta.url,
-                before_options = '-reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-                options = '-vn'
+                before_options = '-re -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+                options = '-vn -sample_rate 48000'
             )
 
             # Plays the audio in discord voice channel
@@ -138,8 +138,8 @@ class commandsMusick(commands.Cog, name = "Music"):
     
     # Funtion to run after music is finished
     def music_after(self, ctx: Context):
-        # Do not execute this function if vc is paused
-        if ctx.voice_client.is_paused():
+        # Do not execute this function if vc is None
+        if not ctx.voice_client:
             return
 
         # Dequeue the current song
