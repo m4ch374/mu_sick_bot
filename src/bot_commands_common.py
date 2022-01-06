@@ -4,9 +4,13 @@
 # Commands and error handling goes to the same file
 
 # Imports from discord
+from os import link
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.bot import Bot
+
+# Import for Youtube-Search fnc (.yt)
+from youtubesearchpython.__future__ import VideosSearch
 
 def setup(bot: Bot):
     bot.add_cog(commandsCommon())
@@ -26,7 +30,7 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     @commands.command(
         name = "hello",
         help = "hello [int] (optional)",
-        description = "Returns a message saying \"hello world\" as many times as the int entered"
+        description = "Returns a message saying \"hello world\" as many times as the [int] entered (if any)"
     )
     @commands.cooldown(rate = 4, per = 60, type = commands.BucketType.user)
     async def hello(self, ctx: Context, num: int = 1):
@@ -70,6 +74,19 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     async def rand(self, ctx: Context):
         await ctx.send(None)
 
+    # ========================================
+    # YouTube search & return link command
+    # usage: yt [str]
+    # Finds top result of the "str" on youtube and returns the link (does NOT add to queue, nor Play)
+    @commands.command(
+        name = "yt",
+        help = "yt [arg]",
+        description = "Finds YouTube's top search result of the 'arg' and simply returns the link"
+    )
+    async def yt(self, ctx: Context, *, args):
+        videosSearch = VideosSearch(args, limit = 2)
+        videosResult = await videosSearch.next()
+        await ctx.send(videosResult['result'][0]['link'])
     # ========================================
     # General Helper functinos
     # ========================================
