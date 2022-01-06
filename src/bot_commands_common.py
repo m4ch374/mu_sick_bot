@@ -86,6 +86,7 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     async def yt(self, ctx: Context, *, args):
         videosSearch = VideosSearch(args, limit = 2)
         videosResult = await videosSearch.next()
+        # Sends link
         await ctx.send(videosResult['result'][0]['link'])
     # ========================================
     # General Helper functinos

@@ -16,6 +16,9 @@ from discord.ext.commands.context import Context
 from discord.embeds import Embed
 from discord import FFmpegOpusAudio
 
+# Import for when .play is NOT followed by a https-link
+from youtubesearchpython.__future__ import VideosSearch
+
 def setup(bot: Bot):
     bot.add_cog(commandsMusick())
 
@@ -59,6 +62,12 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def play(self, ctx: Context, *, link: str):
+        # Finds the link of the top search result of the str after '.play', in YouTube, and
+        # Assigns it to the 'link' var
+        if link[:5] != 'https':
+            videosSearch = VideosSearch(link, limit = 2)
+            videosResult = await videosSearch.next()
+            link = videosResult['result'][0]['link']
         # Remove unwanted head and tail characters
         link = link.strip(" <>")
         
@@ -104,6 +113,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             vid_info = ydl.extract_info(url = link, download = False)
 
+        # SPAWN OF THE DEVIL:
         print(json.dumps(vid_info, indent = 4))
         self.queue.queue(vid_info)
 
@@ -132,7 +142,7 @@ class commandsMusick(commands.Cog, name = "Music"):
                 after = lambda e: self.music_after(ctx) # e as in error
             )
         else :
-            embed_msg = self.spawn_embed(ctx, title = "Added to quque")
+            embed_msg = self.spawn_embed(ctx, title = "Added to Queue")
             embed_msg.description = f"Queued `{self.queue.last().title}`"
             await ctx.send(embed = embed_msg)
     
