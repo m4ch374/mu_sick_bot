@@ -142,7 +142,7 @@ class commandsMusick(commands.Cog, name = "Music"):
                 after = lambda e: self.music_after(ctx) # e as in error
             )
         else :
-            embed_msg = self.spawn_embed(ctx, title = "Added to Queue")
+            embed_msg = self.spawn_embed(ctx, title = "Added to Queue ☑")
             embed_msg.description = f"Queued `{self.queue.last().title}`"
             await ctx.send(embed = embed_msg)
     
@@ -232,7 +232,7 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def queue(self, ctx: Context):
-        embed_msg = self.spawn_embed(ctx, title = "Music queue")
+        embed_msg = self.spawn_embed(ctx, title = "Music queue 🎵")
 
         # Sends error message if the queue is empty
         if self.queue.empty():
