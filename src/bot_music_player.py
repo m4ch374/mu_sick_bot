@@ -16,8 +16,10 @@ from discord.ext.commands.context import Context
 from discord.embeds import Embed
 from discord import FFmpegOpusAudio
 
-# Import for when .play is NOT followed by a https-link
-from youtubesearchpython.__future__ import VideosSearch
+# ========================================
+# LEGACY
+# from youtubesearchpython.__future__ import VideosSearch
+# ========================================
 
 def setup(bot: Bot):
     bot.add_cog(commandsMusick())
@@ -62,12 +64,26 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def play(self, ctx: Context, *, link: str):
+
+        # ========================================
+        # Im sorry bruh i've found a way to do the searching
+        # without ytsearchpython but i suppose we could keep
+        # the `yt` command
+        # 
+        # Code: `vid_info = vid_info['entries'][0] if 'entries' in vid_info else vid_info`
+        # In: queue_video_info()
+        #
+        # ========================================
+        # LEGACY
+        # ========================================
         # Finds the link of the top search result of the str after '.play', in YouTube, and
         # Assigns it to the 'link' var
-        if link[:5] != 'https':
-            videosSearch = VideosSearch(link, limit = 2)
-            videosResult = await videosSearch.next()
-            link = videosResult['result'][0]['link']
+        # if link[:5] != 'https':
+        #     videosSearch = VideosSearch(link, limit = 2)
+        #     videosResult = await videosSearch.next()
+        #     link = videosResult['result'][0]['link']
+        # ========================================
+
         # Remove unwanted head and tail characters
         link = link.strip(" <>")
         
@@ -114,7 +130,11 @@ class commandsMusick(commands.Cog, name = "Music"):
             vid_info = ydl.extract_info(url = link, download = False)
 
         # SPAWN OF THE DEVIL:
+        #
+        # That is FAX - Henry 6/1/2022 19:48 HKT
         print(json.dumps(vid_info, indent = 4))
+
+        vid_info = vid_info['entries'][0] if 'entries' in vid_info else vid_info
         self.queue.queue(vid_info)
 
     # Plays audio from queue
