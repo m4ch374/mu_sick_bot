@@ -197,7 +197,7 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def np(self, ctx: Context):
-        embed_msg = self.spawn_embed(ctx, title = "Now Playing")
+        embed_msg = self.spawn_embed(ctx, title = "Now Playing ▶")
 
         # Sends error message if the queue is empty
         if self.queue.empty():
@@ -255,7 +255,7 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def skip(self, ctx: Context):
-        embed_msg = self.spawn_embed(ctx, title = "Skip")
+        embed_msg = self.spawn_embed(ctx, title = "Skip ⏭")
 
         # Sends error message if queue is empty
         if self.queue.empty():
