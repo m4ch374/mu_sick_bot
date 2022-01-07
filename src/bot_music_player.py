@@ -16,8 +16,10 @@ from discord.ext.commands.context import Context
 from discord.embeds import Embed
 from discord import FFmpegOpusAudio
 
-# Import for when .play is NOT followed by a https-link
-from youtubesearchpython.__future__ import VideosSearch
+# ========================================
+# LEGACY
+# from youtubesearchpython.__future__ import VideosSearch
+# ========================================
 
 def setup(bot: Bot):
     bot.add_cog(commandsMusick())
@@ -46,6 +48,18 @@ def check_voice_channel():
         return True
     return commands.check(predicate)
 
+def check_bot_in_vc():
+    def predicate(ctx: Context):
+        if ctx.voice_client == None:
+            asyncio.run_coroutine_threadsafe(
+                ctx.send("❌ **Bot not in voice channel**"),
+                ctx.bot.loop
+            )
+            return False
+        
+        return True
+    return commands.check(predicate)
+
 class commandsMusick(commands.Cog, name = "Music"):
     # Initalizer
     def __init__(self):
@@ -62,16 +76,32 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def play(self, ctx: Context, *, link: str):
+
+        # ========================================
+        # Im sorry bruh i've found a way to do the searching
+        # without ytsearchpython but i suppose we could keep
+        # the `yt` command
+        # 
+        # Code: `vid_info = vid_info['entries'][0] if 'entries' in vid_info else vid_info`
+        # In: queue_video_info()
+        #
+        # ========================================
+        # LEGACY
+        # ========================================
         # Finds the link of the top search result of the str after '.play', in YouTube, and
         # Assigns it to the 'link' var
-        if link[:5] != 'https':
-            videosSearch = VideosSearch(link, limit = 2)
-            videosResult = await videosSearch.next()
-            link = videosResult['result'][0]['link']
+        # if link[:5] != 'https':
+        #     videosSearch = VideosSearch(link, limit = 2)
+        #     videosResult = await videosSearch.next()
+        #     link = videosResult['result'][0]['link']
+        # ========================================
+
         # Remove unwanted head and tail characters
         link = link.strip(" <>")
         
         try:
+            await ctx.send(f"🎹 Searching for: `{link}`")
+
             # youtube dl options
             ydl_opts = {
                 'format': 'bestaudio/best',
@@ -80,7 +110,8 @@ class commandsMusick(commands.Cog, name = "Music"):
                 'noplaylist': True,
                 'simulate': True,
                 'default_search': 'ytsearch1',
-                'preferffmpeg': True
+                'preferffmpeg': True,
+                'age_limit': '0'
             }
             await self.process_play_audio(ctx, link, ydl_opts)
 
@@ -114,7 +145,11 @@ class commandsMusick(commands.Cog, name = "Music"):
             vid_info = ydl.extract_info(url = link, download = False)
 
         # SPAWN OF THE DEVIL:
+        #
+        # That is FAX - Henry 6/1/2022 19:48 HKT
         print(json.dumps(vid_info, indent = 4))
+
+        vid_info = vid_info['entries'][0] if 'entries' in vid_info else vid_info
         self.queue.queue(vid_info)
 
     # Plays audio from queue
@@ -142,8 +177,10 @@ class commandsMusick(commands.Cog, name = "Music"):
                 after = lambda e: self.music_after(ctx) # e as in error
             )
         else :
-            embed_msg = self.spawn_embed(ctx, title = "Added to Queue ☑")
-            embed_msg.description = f"Queued `{self.queue.last().title}`"
+            queued_song = self.queue.last()
+            embed_msg = self.spawn_embed(ctx, author = "Added to Queue☑", title = queued_song.title)
+            embed_msg.url = queued_song.get_vid_url()
+            self.add_embed_vid_meta(embed_msg, queued_song)
             await ctx.send(embed = embed_msg)
     
     # Funtion to run after music is finished
@@ -178,13 +215,9 @@ class commandsMusick(commands.Cog, name = "Music"):
         help = "disconnect",
         description = "Disconnects from a voice channel"
     )
+    @check_bot_in_vc()
     @check_voice_channel()
     async def disconnect(self, ctx: Context):
-        # Sends error message if bot is not in voice channel
-        if ctx.voice_client == None:
-            error_embed = self.spawn_error_embed(ctx, "Not in a voice channel.")
-            return await ctx.send(embed = error_embed)
-
         # Remove all item in queue
         if not self.queue.empty():
             self.queue.clean()
@@ -207,17 +240,22 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def np(self, ctx: Context):
-        embed_msg = self.spawn_embed(ctx, title = "Now Playing ▶")
+        author = "Now Playing ▶️"
 
         # Sends error message if the queue is empty
         if self.queue.empty():
-            embed_msg.description = "There are no songs currently playing"
-        else:
-            curr_song = self.queue.first()
-            embed_msg.description = (
-                f"**{curr_song.title}**\n"
-                f"Duration: `{curr_song.get_time()}`"
+            embed_msg = self.spawn_embed(
+                ctx,
+                author = author,
+                title = "There are no songs currently playing"
             )
+            return await ctx.send(embed = embed_msg)
+
+        # Spawn embed msg
+        curr_song = self.queue.first()
+        embed_msg = self.spawn_embed(ctx, author = author, title = curr_song.title)
+        embed_msg.url = curr_song.get_vid_url()
+        self.add_embed_vid_meta(embed_msg, curr_song)
 
         await ctx.send(embed = embed_msg)
 
@@ -232,24 +270,34 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def queue(self, ctx: Context):
-        embed_msg = self.spawn_embed(ctx, title = "Music queue 🎵")
+        author = "Music queue 🎵"
 
         # Sends error message if the queue is empty
         if self.queue.empty():
-            embed_msg.description = "There are currently no songs in queue"
-        else:
-            q_list = self.queue.dump()
-            embed_msg.description = f"There are {len(q_list)} songs in queue"
+            embed_msg = self.spawn_embed(
+                ctx, 
+                author = author,
+                title = "There are currently no songs in queue"
+            )
+            return await ctx.send(embed = embed_msg)
+        
+        # Spawn embed
+        q_list = self.queue.dump()
+        embed_msg = self.spawn_embed(
+            ctx, 
+            author = author,
+            title = f"There are {len(q_list)} songs in queue"
+        )
 
-            # Adds field for each song in queue
-            for i in range(0, len(q_list)):
-                song = q_list[i]
+        # Adds field for each song in queue
+        for i in range(0, len(q_list)):
+            song = q_list[i]
 
-                embed_msg.add_field(
-                    name = f"{i + 1}. {song.title}",
-                    value = f"Duration: `{song.get_time()}`",
-                    inline = False
-                )
+            embed_msg.add_field(
+                name = f"{i + 1}. {song.title}",
+                value = f"{song.get_vid_url()}\nDuration: `{song.get_time()}`",
+                inline = False
+            )
 
         await ctx.send(embed = embed_msg)
     # ========================================
@@ -265,20 +313,19 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def skip(self, ctx: Context):
-        embed_msg = self.spawn_embed(ctx, title = "Skip ⏭")
-
         # Sends error message if queue is empty
         if self.queue.empty():
-            embed_msg.description = "There are currently no songs playing"
+            title = "There are currently no songs playing"
         else:
             # Constructs embed message
             curr_music = self.queue.first()
-            embed_msg.description = f"Skipping: `{curr_music.title}`"
+            title = f"{curr_music.title}"
 
             # skips the current music and play the next one
             ctx.voice_client.pause()
             self.music_after(ctx)
 
+        embed_msg = self.spawn_embed(ctx, title = title, author = "Skip ⏭")
         await ctx.send(embed = embed_msg)
     # ========================================
 
@@ -288,14 +335,14 @@ class commandsMusick(commands.Cog, name = "Music"):
 
     # ========================================
     # Spawn an embed template
-    def spawn_embed(self, ctx: Context, title: str):
+    def spawn_embed(self, ctx: Context, title: str, author: str=None):
         embed_msg = Embed(
             colour = 0xc27c0e,
             title = title
         )
 
         embed_msg.set_author(
-            name = ctx.author.display_name,
+            name = ctx.author.display_name if author == None else author,
             icon_url = ctx.author.avatar_url
         )
 
@@ -308,6 +355,22 @@ class commandsMusick(commands.Cog, name = "Music"):
         embed_msg = self.spawn_embed(ctx, "Oops! An error occurred.")
         embed_msg.description = description
         return embed_msg
+    # ========================================
+
+    # ========================================
+    # Adds video meta to embed
+    def add_embed_vid_meta(self, embed_msg: Embed, curr_song):
+        embed_msg.add_field(
+            name = "Channel name:",
+            value = f"> {curr_song.channel}"
+        )
+
+        embed_msg.add_field(
+            name = "Duration:",
+            value = f"> {curr_song.get_time()}"
+        )
+
+        embed_msg.set_thumbnail(url = curr_song.thumbnail)
     # ========================================
 
 # A queue system for the music bot
@@ -350,11 +413,21 @@ class youtubeVidMeta():
         self.url = data['formats'][0]['url']
         self.duration = data['duration']
         self.title = data['title']
+        self.vid_id = data['id']
+        self.channel = data['channel']
+        self.thumbnail = data['thumbnail']
 
     # Display the duration in mm:ss format
     def get_time(self):
         m, s = divmod(self.duration, 60)
         return "{:02d}:{:02d}".format(m, s)
+
+    # Returns the original video link
+    def get_vid_url(self):
+        return f"https://www.youtube.com/watch?v={self.vid_id}"
+
+    def get_embedded_title(self):
+        return f"[{self.title}]({self.get_vid_url()})"
 
     # Prints data, for debugging
     def printData(self):
