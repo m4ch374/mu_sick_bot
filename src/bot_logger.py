@@ -51,10 +51,13 @@ class logger(commands.Cog):
             message = "This command does not exist. Run |.help| for more info"
         elif isinstance(error, commands.MissingPermissions):
             message = "You are missing the required permissions to run this command!"
-        elif isinstance(error, commands.UserInputError):
-            message = "Something about your input was wrong, please check your input and try again!"
         elif isinstance(error, commands.CommandOnCooldown):
             message = f"Hey `{ctx.author.name}`, please wait `{round(error.retry_after)}` seconds before executing this command!"
+        elif isinstance(error, commands.errors.MemberNotFound):
+            message = f"`{error.argument}` appears to be absent from this server!"
+            # # NOTE (4theDaddys): UserInputError goes at very bottom, cause it is generalised afaik
+        elif isinstance(error, commands.UserInputError):
+            message = "Something about your input was wrong, please check your input and try again!"
         else:
             print(error)
 
