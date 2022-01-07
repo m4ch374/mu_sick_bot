@@ -99,6 +99,8 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     # ========================================
 
 
+    # This shit cool bruh - Henry 7/1/2022 19:26 HKT
+    #
     # ========================================
     # Spotify Sesh
     # usage: spotify [str]
@@ -138,7 +140,7 @@ class commandsCommon(commands.Cog, name = "Common commands"):
                     # print("AYYEEEEEEE")
                     # return
 
-        await ctx.send(f"`{user.name}` is not in a session right now")
+        await ctx.send(f"❌ **`{user.name}` is not in a session right now**")
         return
 
 
