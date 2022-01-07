@@ -48,6 +48,18 @@ def check_voice_channel():
         return True
     return commands.check(predicate)
 
+def check_bot_in_vc():
+    def predicate(ctx: Context):
+        if ctx.voice_client == None:
+            asyncio.run_coroutine_threadsafe(
+                ctx.send("❌ **Bot not in voice channel**"),
+                ctx.bot.loop
+            )
+            return False
+        
+        return True
+    return commands.check(predicate)
+
 class commandsMusick(commands.Cog, name = "Music"):
     # Initalizer
     def __init__(self):
@@ -88,7 +100,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         link = link.strip(" <>")
         
         try:
-            await ctx.send(f"🎹 Searching for `{link}`")
+            await ctx.send(f"🎹 Searching for: `{link}`")
 
             # youtube dl options
             ydl_opts = {
@@ -203,13 +215,9 @@ class commandsMusick(commands.Cog, name = "Music"):
         help = "disconnect",
         description = "Disconnects from a voice channel"
     )
+    @check_bot_in_vc()
     @check_voice_channel()
     async def disconnect(self, ctx: Context):
-        # Sends error message if bot is not in voice channel
-        if ctx.voice_client == None:
-            error_embed = self.spawn_error_embed(ctx, "Not in a voice channel.")
-            return await ctx.send(embed = error_embed)
-
         # Remove all item in queue
         if not self.queue.empty():
             self.queue.clean()
@@ -362,7 +370,7 @@ class commandsMusick(commands.Cog, name = "Music"):
             value = f"> {curr_song.get_time()}"
         )
 
-        embed_msg.set_image(url = curr_song.thumbnail)
+        embed_msg.set_thumbnail(url = curr_song.thumbnail)
     # ========================================
 
 # A queue system for the music bot
