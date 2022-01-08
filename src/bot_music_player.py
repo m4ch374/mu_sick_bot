@@ -161,7 +161,7 @@ class commandsMusick(commands.Cog, name = "Music"):
     # Plays audio from queue
     async def play_audio(self, ctx: Context, vc):
         # Shows the current playing video
-        await self.np(ctx)
+        await self.send_current_vid_info(ctx)
 
         vid_meta = self.queue.first()
 
@@ -245,24 +245,7 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def np(self, ctx: Context):
-        author = "Now Playing ▶️"
-
-        # Sends error message if the queue is empty
-        if self.queue.empty():
-            embed_msg = self.spawn_embed(
-                ctx,
-                author = author,
-                title = "There are no songs currently playing"
-            )
-            return await ctx.send(embed = embed_msg)
-
-        # Spawn embed msg
-        curr_song = self.queue.first()
-        embed_msg = self.spawn_embed(ctx, author = author, title = curr_song.title)
-        embed_msg.url = curr_song.get_vid_url()
-        self.add_embed_vid_meta(embed_msg, curr_song)
-
-        await ctx.send(embed = embed_msg)
+        await self.send_current_vid_info(ctx)
 
     # ========================================
     # queue command
@@ -360,6 +343,29 @@ class commandsMusick(commands.Cog, name = "Music"):
         embed_msg = self.spawn_embed(ctx, "Oops! An error occurred.")
         embed_msg.description = description
         return embed_msg
+    # ========================================
+
+    # ========================================
+    # Send the current vid's info embed
+    async def send_current_vid_info(self, ctx: Context):
+        author = "Now Playing ▶️"
+
+        # Sends error message if the queue is empty
+        if self.queue.empty():
+            embed_msg = self.spawn_embed(
+                ctx,
+                author = author,
+                title = "There are no songs currently playing"
+            )
+            return await ctx.send(embed = embed_msg)
+
+        # Spawn embed msg
+        curr_song = self.queue.first()
+        embed_msg = self.spawn_embed(ctx, author = author, title = curr_song.title)
+        embed_msg.url = curr_song.get_vid_url()
+        self.add_embed_vid_meta(embed_msg, curr_song)
+
+        await ctx.send(embed = embed_msg)
     # ========================================
 
     # ========================================
