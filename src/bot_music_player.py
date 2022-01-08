@@ -137,8 +137,14 @@ class commandsMusick(commands.Cog, name = "Music"):
         # Connect and play audio
         vc = await ctx.author.voice.channel.connect() if not ctx.voice_client else ctx.voice_client
 
-        await self.play_audio(ctx, vc)
+        # Plays when queue is not empty and bot is not playing any audio
+        # Shows an embed queueing the video otherwise
+        if not self.queue.empty() and not vc.is_playing():
+            await self.play_audio(ctx, vc)
+        else:
+            await self.send_queued_message(ctx)
 
+    # Add video to queue
     # Returns video info in json string, prints error message if failed
     def queue_vdo_info(self, link: str, ydl_opts):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
@@ -154,34 +160,33 @@ class commandsMusick(commands.Cog, name = "Music"):
 
     # Plays audio from queue
     async def play_audio(self, ctx: Context, vc):
-        # Plays when queue is not empty and bot is not playing any audio
-        # Shows an embed queueing the video otherwise
-        if not self.queue.empty() and not vc.is_playing():
-            # Shows the current playing video
-            await self.np(ctx)
+        # Shows the current playing video
+        await self.np(ctx)
 
-            vid_meta = self.queue.first()
+        vid_meta = self.queue.first()
 
-            # Audio source, using FFmpegOpusAudio
-            # Reconnects immediately on disconnect (before_options)
-            song_src = await FFmpegOpusAudio.from_probe(
-                source = vid_meta.url,
-                before_options = '-re -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-                options = '-vn -sample_rate 48000'
-            )
+        # Audio source, using FFmpegOpusAudio
+        # Reconnects immediately on disconnect (before_options)
+        song_src = await FFmpegOpusAudio.from_probe(
+            source = vid_meta.url,
+            before_options = '-re -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+            options = '-vn -sample_rate 48000'
+        )
 
-            # Plays the audio in discord voice channel
-            # Note: vc means voice client
-            vc.play(
-                song_src,
-                after = lambda e: self.music_after(ctx) # e as in error
-            )
-        else :
-            queued_song = self.queue.last()
-            embed_msg = self.spawn_embed(ctx, author = "Added to Queue☑", title = queued_song.title)
-            embed_msg.url = queued_song.get_vid_url()
-            self.add_embed_vid_meta(embed_msg, queued_song)
-            await ctx.send(embed = embed_msg)
+        # Plays the audio in discord voice channel
+        # Note: vc means voice client
+        vc.play(
+            song_src,
+            after = lambda e: self.music_after(ctx) # e as in error
+        )
+
+    # Send a message of the queued song's info
+    async def send_queued_message(self, ctx: Context):
+        queued_song = self.queue.last()
+        embed_msg = self.spawn_embed(ctx, author = "Added to Queue☑", title = queued_song.title)
+        embed_msg.url = queued_song.get_vid_url()
+        self.add_embed_vid_meta(embed_msg, queued_song)
+        await ctx.send(embed = embed_msg)
     
     # Funtion to run after music is finished
     def music_after(self, ctx: Context):
