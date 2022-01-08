@@ -61,6 +61,10 @@ def check_bot_in_vc():
     return commands.check(predicate)
 
 class commandsMusick(commands.Cog, name = "Music"):
+    # Cannot access self with decorators
+    # So we have to use a constant big oof
+    QUEUE_EMPTY_MSG = "❌ **Queue is empty**"
+
     # Initalizer
     def __init__(self):
         self.queue = musicQueue()
@@ -111,7 +115,8 @@ class commandsMusick(commands.Cog, name = "Music"):
                 'simulate': True,
                 'default_search': 'ytsearch1',
                 'preferffmpeg': True,
-                'age_limit': '0'
+                'age_limit': '0',
+                'is_live': False
             }
             await self.process_play_audio(ctx, link, ydl_opts)
 
@@ -132,7 +137,12 @@ class commandsMusick(commands.Cog, name = "Music"):
     # Wrapper for playing the youtube link
     async def process_play_audio(self, ctx: Context, link: str, ydl_opts):
         # Add video to queue
-        self.queue_vdo_info(link, ydl_opts)
+        vid_info = self.get_vdo_info(link, ydl_opts)
+
+        if vid_info['is_live'] == True:
+            return await ctx.send("❌ **Live is not accepted**")
+
+        self.queue.queue(vid_info)
 
         # Connect and play audio
         vc = await ctx.author.voice.channel.connect() if not ctx.voice_client else ctx.voice_client
@@ -146,7 +156,7 @@ class commandsMusick(commands.Cog, name = "Music"):
 
     # Add video to queue
     # Returns video info in json string, prints error message if failed
-    def queue_vdo_info(self, link: str, ydl_opts):
+    def get_vdo_info(self, link: str, ydl_opts):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             vid_info = ydl.extract_info(url = link, download = False)
 
@@ -156,7 +166,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         print(json.dumps(vid_info, indent = 4))
 
         vid_info = vid_info['entries'][0] if 'entries' in vid_info else vid_info
-        self.queue.queue(vid_info)
+        return vid_info
 
     # Plays audio from queue
     async def play_audio(self, ctx: Context, vc):
@@ -258,22 +268,16 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def queue(self, ctx: Context):
-        author = "Music queue 🎵"
 
         # Sends error message if the queue is empty
         if self.queue.empty():
-            embed_msg = self.spawn_embed(
-                ctx, 
-                author = author,
-                title = "There are currently no songs in queue"
-            )
-            return await ctx.send(embed = embed_msg)
+            return await ctx.send(self.QUEUE_EMPTY_MSG)
         
         # Spawn embed
         q_list = self.queue.dump()
         embed_msg = self.spawn_embed(
             ctx, 
-            author = author,
+            author = "Music queue 🎵",
             title = f"There are {len(q_list)} songs in queue"
         )
 
@@ -287,6 +291,38 @@ class commandsMusick(commands.Cog, name = "Music"):
                 inline = False
             )
 
+        await ctx.send(embed = embed_msg)
+    # ========================================
+
+    # ========================================
+    # remove command
+    # Usage: remove [index]
+    # Removes a song in queue at specified index
+    @commands.command(
+        name = "remove",
+        help = "remove [index]",
+        description = ("Removes a song in queue at specified index.\n" +
+            "> Note: Index starts at `1`")
+    )
+    @check_voice_channel()
+    async def remove(self, ctx: Context, index: int):
+        # Sends error message if queue is empty
+        if self.queue.empty():
+            return await ctx.send(self.QUEUE_EMPTY_MSG)
+        
+        # Sends error message if index is out of range
+        if index <= 0 or index > self.queue.get_len():
+            return await ctx.send("❌ **Index out of range**")
+        
+        # Get the song's data
+        target_song = self.queue.get_at_index(index - 1)
+
+        if index == 1:
+            self.skip_curr_vid(ctx)
+        else:
+            self.queue.remove_at_index(index - 1)
+
+        embed_msg = self.spawn_embed(ctx, title = target_song.title, author = "Removed ✅")
         await ctx.send(embed = embed_msg)
     # ========================================
     
@@ -303,17 +339,15 @@ class commandsMusick(commands.Cog, name = "Music"):
     async def skip(self, ctx: Context):
         # Sends error message if queue is empty
         if self.queue.empty():
-            title = "There are currently no songs playing"
-        else:
-            # Constructs embed message
-            curr_music = self.queue.first()
-            title = f"{curr_music.title}"
+            return await ctx.send(self.QUEUE_EMPTY_MSG)
 
-            # skips the current music and play the next one
-            ctx.voice_client.pause()
-            self.music_after(ctx)
+        # Get the current music's data
+        curr_music = self.queue.first()
 
-        embed_msg = self.spawn_embed(ctx, title = title, author = "Skip ⏭")
+        # Skips current video and play the next one
+        self.skip_curr_vid(ctx)
+
+        embed_msg = self.spawn_embed(ctx, title = curr_music.title, author = "Skip ⏭")
         await ctx.send(embed = embed_msg)
     # ========================================
 
@@ -352,12 +386,7 @@ class commandsMusick(commands.Cog, name = "Music"):
 
         # Sends error message if the queue is empty
         if self.queue.empty():
-            embed_msg = self.spawn_embed(
-                ctx,
-                author = author,
-                title = "There are no songs currently playing"
-            )
-            return await ctx.send(embed = embed_msg)
+            return await ctx.send(self.QUEUE_EMPTY_MSG)
 
         # Spawn embed msg
         curr_song = self.queue.first()
@@ -366,6 +395,13 @@ class commandsMusick(commands.Cog, name = "Music"):
         self.add_embed_vid_meta(embed_msg, curr_song)
 
         await ctx.send(embed = embed_msg)
+    # ========================================
+
+    # ========================================
+    # Skips current video in playlist and play the next one
+    def skip_curr_vid(self, ctx: Context):
+        ctx.voice_client.pause()
+        self.music_after(ctx)
     # ========================================
 
     # ========================================
@@ -416,6 +452,17 @@ class musicQueue():
     # Returns the last item in list
     def last(self):
         return self.queue_list[-1]
+
+    # Returns the song data in the specified index
+    def get_at_index(self, index: int):
+        return self.queue_list[index]
+
+    # Remove a song's data in the specified index
+    def remove_at_index(self, index: int):
+        self.queue_list.pop(index)
+
+    def get_len(self):
+        return len(self.queue_list)
 
 # A class representing a youtube video
 # Contains metadata such as title, url, etc...
