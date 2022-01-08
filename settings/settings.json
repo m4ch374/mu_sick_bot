@@ -2,6 +2,7 @@
     "fileIgnoreList": [
         "mu_sick_bot.py",
         "help_command.py",
+        "music_queue_system.py",
         "__pycache__"
     ],
     "Prefix": {
