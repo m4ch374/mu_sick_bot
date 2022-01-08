@@ -1,3 +1,7 @@
+# File for the queue system that the music bot use
+
+# Currently no imports
+
 # A queue system for the music bot
 class musicQueue():
     def __init__(self):
