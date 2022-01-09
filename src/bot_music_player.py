@@ -197,7 +197,7 @@ class commandsMusick(commands.Cog, name = "Music"):
     # Send a message of the queued song's info
     async def send_queued_message(self, ctx: Context):
         queued_song = self.queue.last()
-        embed_msg = self.spawn_embed(ctx, author = "Added to Queue☑", title = queued_song.title)
+        embed_msg = self.spawn_embed(ctx, author = "Added to Queue ✅", title = queued_song.title)
         embed_msg.url = queued_song.get_vid_url()
         self.add_embed_vid_meta(embed_msg, queued_song)
         await ctx.send(embed = embed_msg)
