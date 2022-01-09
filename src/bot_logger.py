@@ -1,8 +1,13 @@
 # Files for logging user and bot activities
+
+# Import from discord
 from discord.ext import commands
 from discord.ext.commands import CommandError
 from discord.ext.commands.bot import Bot
 from discord.ext.commands.context import Context
+
+# Import from own files
+import mu_sick_bot
 
 def setup(bot: Bot):
     bot.add_cog(logger(bot))
@@ -17,6 +22,7 @@ class logger(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print('We have logged in as {0.user}'.format(self.bot))
+        mu_sick_bot.set_activity(self.bot)
     # ========================================
 
     # ========================================

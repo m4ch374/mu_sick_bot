@@ -181,7 +181,7 @@ class commandsAPI(commands.Cog, name = "API"):
         # Episodes and runtime
         if ctx.command.name == "anime":
             embed_msg.add_field(name = "Episodes", value = f"> {attr['episodeCount']}")
-            embed_msg.add_field(name = "Runtime", value = f"> {attr['episodeLength']}")
+            embed_msg.add_field(name = "Runtime", value = f"> {attr['episodeLength']} mins")
             embed_msg.add_field(name = "Show Type", value = f"> {attr['showType']}")
 
         # Genres and Ratings and nsfw
