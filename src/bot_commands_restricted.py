@@ -67,23 +67,6 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
         ctx.bot.command_prefix = new_prefix
         await ctx.send(f"Prefix updated to `{new_prefix}`")
 
-    # error handling
-    @setPrefix.error
-    async def setPrefix_error(self, ctx: Context, error):
-        # Permission error
-        if isinstance(error, commands.MissingPermissions):
-            return await ctx.send("You do not have the permisssion to access this command")
-
-        # General argument error
-        output_str = ""
-        if isinstance(error, commands.MissingRequiredArgument):
-            output_str = "Error: too little arguments\n"
-        else:
-            output_str = "Error: unidentified error\n"
-        
-        output_str += "\nUsage: setPrefix [new_prefix]"
-        await ctx.send(output_str)
-
     # Helper function
     def modify_json_prefix(self, new_prefix: str):
         #Read in json file
