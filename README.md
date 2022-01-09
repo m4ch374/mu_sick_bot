@@ -1,34 +1,97 @@
 # mu_sick_bot
 
-## Contents
-  
-  1.  Who?
-  2.  Where?
-  3.  What?
-  4.  When?
-  5.  Why?
-  6.  How?
+`mu_sick_bot` is a discord bot written in Python, using `discord.py`
 
-## 1. Who?:
+The bot is compatible for both `Linux` and `Windows`.
 
-* edp445 fans
+# Getting Started
 
-## 2.  Where?
+### **1. Installing `Python`:**
 
-* Coords: 41.84201, -89.485937
+To run the bot, we must first install python.
 
-## 3.  What?
+**Note: Pyhon 3.8 or higher is required.**
 
-* A cool as discord bot
+* For linux users:
+```
+$ sudo apt-get install python
+```  
+* For Windows users:
 
-## 4.  When?
+> Download Python via [this link](https://www.python.org/downloads/)
 
-* From present till future
+### **2. Installing `discord.py` and `requests`:**
 
-## 5.  Why? 
+To install discord.py and requests, run the following command:
+```cs
+# Linux users
+$ python3 -m pip install -U "discord.py[voice]"
+$ python3 -m pip install requests
 
-* Passion project
+# Windows users
+$ py -3 -m pip install -U discord.py[voice]
+$ py -3 -m pip install requests
+```
 
-## 6.  How?
+### **3. Installing `youtube-search-python`, `youtube-dl`:**
 
-* Python, and some big brains
+To install these libraries, run the following commands:
+
+```cs
+# Linux users
+$ python3 -m pip install youtube-search-python
+$ python3 -m pip install youtube-dl
+
+# Windows users
+$ py -3 -m pip install youtube-search-python
+$ py -3 -m pip install youtube-dl
+```
+
+# Description
+`mu_sick_bot` is a discord music bot and a passion project coded by [m4ch374](https://github.com/m4ch374) and [n0t-4m17h](https://github.com/n0t-4m17h).
+
+As music bots such as Groovy and Rythm ended their service, we thought:  
+> If we don't have one, we gon' make one - Sun Tsu (probably)
+
+And thats how the `mu_sick_bot` was born.  
+The `mu_sick_bot` mainly focuses on music playing features but it also provides other commands.
+
+# Commands [Default prefix: `$`]
+The `mu_sick_bot` provides commands in these 4 main categories:
+
+* Music
+* API
+* Common commands
+* Moderation
+
+## 1. Music
+**place holder**  
+this is the description
+> $placeholder
+
+## 2. API
+**place holder**  
+this is the description
+> $placeholder
+
+## 3. Common commands
+**place holder**  
+this is the description
+> $placeholder
+
+## 4. Moderation
+**place holder**  
+this is the description
+> $placeholder
+
+# Supported Sources and Restrictions
+* :white_check_mark: Supported sources  
+Unfortunately, at this stage we only support sources from `youtube`
+
+* :x: Restrictions
+  * The video provided **cannot be live**
+  * Playlist is **not** supported, once provided, it will only add the **first song** in the playlist to the queue
+
+----
+
+We plan to further expand the capibilities this bot, if we have time.
