@@ -2,6 +2,7 @@
 # Command dosent require any permission
 
 # Import from system
+import io
 import asyncio
 import json
 import requests
@@ -9,6 +10,7 @@ import datetime
 import traceback
 
 # Imports form discord
+import discord
 from discord.ext import commands
 from discord.embeds import Embed
 from discord.ext.commands.bot import Bot
@@ -255,10 +257,10 @@ class commandsAPI(commands.Cog, name = "API"):
             get_url = "https://waifu.pics/api/nsfw/waifu"
             data = requests.get(get_url).json()
 
-            embed_img = Embed(color = 0xe67e22)
-            embed_img.set_image(url = data['url'])
+            img_bytes = io.BytesIO(requests.get(data['url']).content)
 
-        await ctx.send(embed = embed_img)
+        file_extension = data['url'].rsplit('.', 1)[-1]
+        await ctx.send(file = discord.File(img_bytes, f"SPOILER_img.{file_extension}"))
     # ========================================
 
     # ========================================
