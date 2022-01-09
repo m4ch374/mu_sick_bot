@@ -53,9 +53,11 @@ class logger(commands.Cog):
         if ctx.command:
             if ctx.command.has_error_handler(): return
 
+        # Ignore command not found error
         if isinstance(error, commands.CommandNotFound):
-            message = "This command does not exist. Run |.help| for more info"
-        elif isinstance(error, commands.MissingPermissions):
+            return
+        
+        if isinstance(error, commands.MissingPermissions):
             message = "You are missing the required permissions to run this command!"
         elif isinstance(error, commands.CommandOnCooldown):
             message = f"Hey `{ctx.author.name}`, please wait `{round(error.retry_after)}` seconds before executing this command!"
@@ -63,7 +65,8 @@ class logger(commands.Cog):
             message = f"`{error.argument}` appears to be absent from this server!"
             # # NOTE (4theDaddys): UserInputError goes at very bottom, cause it is generalised afaik
         elif isinstance(error, commands.UserInputError):
-            message = "Something about your input was wrong, please check your input and try again!"
+            message = (f"Something about your input was wrong, " +
+                f"type `{ctx.prefix}help {ctx.command}` for more info")
         else:
             print(error)
 
