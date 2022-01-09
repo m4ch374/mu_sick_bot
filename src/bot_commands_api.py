@@ -2,6 +2,7 @@
 # Command dosent require any permission
 
 # Import from system
+import asyncio
 import json
 import requests
 import datetime
@@ -15,6 +16,21 @@ from discord.ext.commands.context import Context
 
 def setup(bot: Bot):
     bot.add_cog(commandsAPI())
+
+# ========================================
+# Checks
+# ========================================
+def channel_is_nsfw():
+    def predicate(ctx: Context):
+        if not ctx.channel.is_nsfw():
+            asyncio.run_coroutine_threadsafe(
+                ctx.send("❌ **Not in nsfw channel**"),
+                ctx.bot.loop
+            )
+            return False
+        
+        return True
+    return commands.check(predicate)
 
 class commandsAPI(commands.Cog, name = "API"):
     # No need __init__() for now i think
@@ -97,7 +113,7 @@ class commandsAPI(commands.Cog, name = "API"):
 
     # ========================================
     # Anime command
-    # Usage: anime [title] Optional[offset]
+    # Usage: anime [title]
     # Returns an embed containing the anime's info
     @commands.command(
         name = "anime",
@@ -112,7 +128,7 @@ class commandsAPI(commands.Cog, name = "API"):
 
     # ========================================
     # Manga command
-    # Usage: manga [title] Optional[offset]
+    # Usage: manga [title]
     # Returns an embed containing the manga's info
     @commands.command(
         name = "manga",
@@ -201,6 +217,48 @@ class commandsAPI(commands.Cog, name = "API"):
             return ["N/A"]
         else:
             return [item['attributes']['name'] for item in genres['data']]
+    # ========================================
+
+    # ========================================
+    # waifu command
+    # Usage: waifu
+    # Returns an embed containing an image of a waifu
+    @commands.command(
+        name = "waifu",
+        help = "waifu",
+        description = "Returns an embed containing an image of a waifu"
+    )
+    async def waifu(self, ctx: Context):
+        async with ctx.typing():
+            get_url = "https://waifu.pics/api/sfw/waifu"
+            data = requests.get(get_url).json()
+
+            embed_img = Embed(color = 0x1abc9c)
+            embed_img.set_image(url = data['url'])
+
+        await ctx.send(embed = embed_img)
+    # ========================================
+
+    # ========================================
+    # fbi command
+    # Usage: fbi
+    # Returns an embed containing some very nsfw images
+    @commands.command(
+        name = "fbi",
+        help = "fbi",
+        description = ("Returns an embed containgin some very nsfw images\n" +
+            "**Note: Use with caution!**")
+    )
+    @channel_is_nsfw()
+    async def fbi(self, ctx: Context):
+        async with ctx.typing():
+            get_url = "https://waifu.pics/api/nsfw/waifu"
+            data = requests.get(get_url).json()
+
+            embed_img = Embed(color = 0xe67e22)
+            embed_img.set_image(url = data['url'])
+
+        await ctx.send(embed = embed_img)
     # ========================================
 
     # ========================================
