@@ -4,13 +4,12 @@
 # Commands and error handling goes to the same file
 
 # Imports from discord
-from os import link
+from os import link, name
 import discord as discord
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.bot import Bot
 from discord.embeds import Embed
-from discord import Spotify
 
 # Import for Youtube-Search fnc (.yt)
 from youtubesearchpython.__future__ import VideosSearch
@@ -106,11 +105,11 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     # usage: spotify [str]
     # Returns data on a user's spotify sesh
     @commands.command(
-        name = "spotify",
-        help = "spotify [user]",
-        description = "Returns data on a user's spotify sesh"
+        name = "sesh",
+        help = "sesh [user]",
+        description = "Returns data on a user's discord activity"
     )
-    async def spotify(self, ctx: Context, user: discord.Member=None):
+    async def sesh(self, ctx: Context, user: discord.Member=None):
         if user == None: 
             user = ctx.author
         elif user.bot:
@@ -118,27 +117,42 @@ class commandsCommon(commands.Cog, name = "Common commands"):
             return
         # Checks if the user has an activity at the moment
         if user.activities:
-            # Accesses the user's activities (not just Spotify)
+            # Accesses the user's activities (not just Spotify), 'user.activity' will access the Primary one
             for activity in user.activities:
-                if isinstance(activity, Spotify):
+                if isinstance(activity, discord.Spotify):
                     # Simplify {duration} into h:mm:ss
                     duration = str(activity.duration)
                     final_dur = duration[0:7]
-                    embed_msg = self.spawn_embed(ctx, title = f"🎧`{user.name}` is listening to:")
-                    embed_msg.description = (
-                        f"Title: `{activity.title}`\n"
-                        f"Artist(s): `{activity.artist}`\n"
-                        f"Album: `{activity.album}`\n"
-                        f"Duration: `{final_dur}`"
-                    )
-                    await ctx.send(embed = embed_msg)
-                    # await ctx.send(f"`{user.name}` is listening to `{activity.title}` by `{activity.artist}` in the album `{activity.album}`, on Spotify")
+                    embed_msg = self.spawn_embed(ctx, title = f"🎧 `{user.name}` is listening to:")
                     # 🎶 🎧
+                    # ========================================
+                    # LEGACY
+                    # ========================================
+                    # embed_msg.description = (
+                    #     f"Title: `{activity.title}`\n"
+                    #     f"Artist(s): `{activity.artist}`\n"
+                    #     f"Album: `{activity.album}`\n"
+                    #     f"Duration: `{final_dur}`\n"
+                    #     f"**on {activity.name}**"
+                    # )
+                    # ========================================
+                    embed_msg.add_field(name = 'Name', value = f"> {activity.title}")
+                    embed_msg.add_field(name = 'Artist(s)', value = f"> {activity.artist}") 
+                    embed_msg.add_field(name = 'Album', value = f"> {activity.album}")
+                    embed_msg.add_field(name = 'Duration', value = f"> {final_dur}")
+
+                    embed_msg.set_thumbnail(url = activity.album_cover_url)
+                    spotify_icon_url = "https://www.freepnglogos.com/uploads/spotify-logo-png/file-spotify-logo-png-4.png"
+                    embed_msg.set_footer(text = f"on {activity.name}", icon_url = spotify_icon_url)
+                    # Set to Spotify's colour
+                    embed_msg.colour = activity.color
+
+                    await ctx.send(embed = embed_msg)
                     return
-                # # FOR FURTHER EXAPNSION:
-                # elif isinstance(activity, Game):
-                    # print("AYYEEEEEEE")
-                    # return
+                    
+                # elif isinstance(activity, discord.Game):
+                #     print("AYYEEEEEEE")
+                #     return
 
         await ctx.send(f"❌ **`{user.name}` is not in a session right now**")
         return
