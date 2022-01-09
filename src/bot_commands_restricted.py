@@ -132,7 +132,7 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
             "i.e. said role has access to restricted commands")
     )
     async def whitelist(self, ctx: Context, role: Role):
-        self.modify_json_whitelist(role)
+        self.modify_json_whitelist(role.name)
 
         await ctx.send(f"Whitelisted role: `{role.name}`")
 
