@@ -16,6 +16,10 @@ from discord.ext.commands.context import Context
 from discord.embeds import Embed
 from discord import FFmpegOpusAudio
 
+# Import from own files
+from music_queue_system import youtubeVidMeta
+from music_queue_system import musicQueue
+
 # ========================================
 # LEGACY
 # from youtubesearchpython.__future__ import VideosSearch
@@ -61,6 +65,10 @@ def check_bot_in_vc():
     return commands.check(predicate)
 
 class commandsMusick(commands.Cog, name = "Music"):
+    # Cannot access self with decorators
+    # So we have to use a constant big oof
+    QUEUE_EMPTY_MSG = "❌ **Queue is empty**"
+
     # Initalizer
     def __init__(self):
         self.queue = musicQueue()
@@ -111,7 +119,8 @@ class commandsMusick(commands.Cog, name = "Music"):
                 'simulate': True,
                 'default_search': 'ytsearch1',
                 'preferffmpeg': True,
-                'age_limit': '0'
+                'age_limit': '0',
+                'is_live': False
             }
             await self.process_play_audio(ctx, link, ydl_opts)
 
@@ -132,15 +141,26 @@ class commandsMusick(commands.Cog, name = "Music"):
     # Wrapper for playing the youtube link
     async def process_play_audio(self, ctx: Context, link: str, ydl_opts):
         # Add video to queue
-        self.queue_vdo_info(link, ydl_opts)
+        vid_info = self.get_vdo_info(link, ydl_opts)
+
+        if vid_info['is_live'] == True:
+            return await ctx.send("❌ **Live is not accepted**")
+
+        self.queue.queue(vid_info)
 
         # Connect and play audio
         vc = await ctx.author.voice.channel.connect() if not ctx.voice_client else ctx.voice_client
 
-        await self.play_audio(ctx, vc)
+        # Plays when queue is not empty and bot is not playing any audio
+        # Shows an embed queueing the video otherwise
+        if not self.queue.empty() and not vc.is_playing():
+            await self.play_audio(ctx, vc)
+        else:
+            await self.send_queued_message(ctx)
 
+    # Add video to queue
     # Returns video info in json string, prints error message if failed
-    def queue_vdo_info(self, link: str, ydl_opts):
+    def get_vdo_info(self, link: str, ydl_opts):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             vid_info = ydl.extract_info(url = link, download = False)
 
@@ -150,26 +170,24 @@ class commandsMusick(commands.Cog, name = "Music"):
         print(json.dumps(vid_info, indent = 4))
 
         vid_info = vid_info['entries'][0] if 'entries' in vid_info else vid_info
-        self.queue.queue(vid_info)
+        return vid_info
 
     # Plays audio from queue
     async def play_audio(self, ctx: Context, vc):
-        # Plays when queue is not empty and bot is not playing any audio
-        # Shows an embed queueing the video otherwise
-        if not self.queue.empty() and not vc.is_playing():
-            # Shows the current playing video
-            await self.np(ctx)
+        # Shows the current playing video
+        await self.send_current_vid_info(ctx)
 
-            vid_meta = self.queue.first()
+        vid_meta = self.queue.first()
 
-            # Audio source, using FFmpegOpusAudio
-            # Reconnects immediately on disconnect (before_options)
-            song_src = await FFmpegOpusAudio.from_probe(
-                source = vid_meta.url,
-                before_options = '-re -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
-                options = '-vn -sample_rate 48000'
-            )
+        # Audio source, using FFmpegOpusAudio
+        # Reconnects immediately on disconnect (before_options)
+        song_src = await FFmpegOpusAudio.from_probe(
+            source = vid_meta.url,
+            before_options = '-re -reconnect 1 -reconnect_streamed 1 -reconnect_delay_max 5',
+            options = '-vn -sample_rate 48000'
+        )
 
+<<<<<<< HEAD
             # Plays the audio in discord voice channel
             # Note: vc means voice client
             vc.play(
@@ -182,6 +200,22 @@ class commandsMusick(commands.Cog, name = "Music"):
             embed_msg.url = queued_song.get_vid_url()
             self.add_embed_vid_meta(embed_msg, queued_song)
             await ctx.send(embed = embed_msg)
+=======
+        # Plays the audio in discord voice channel
+        # Note: vc means voice client
+        vc.play(
+            song_src,
+            after = lambda e: self.music_after(ctx) # e as in error
+        )
+
+    # Send a message of the queued song's info
+    async def send_queued_message(self, ctx: Context):
+        queued_song = self.queue.last()
+        embed_msg = self.spawn_embed(ctx, author = "Added to Queue☑", title = queued_song.title)
+        embed_msg.url = queued_song.get_vid_url()
+        self.add_embed_vid_meta(embed_msg, queued_song)
+        await ctx.send(embed = embed_msg)
+>>>>>>> additional_features
     
     # Funtion to run after music is finished
     def music_after(self, ctx: Context):
@@ -240,24 +274,7 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def np(self, ctx: Context):
-        author = "Now Playing ▶️"
-
-        # Sends error message if the queue is empty
-        if self.queue.empty():
-            embed_msg = self.spawn_embed(
-                ctx,
-                author = author,
-                title = "There are no songs currently playing"
-            )
-            return await ctx.send(embed = embed_msg)
-
-        # Spawn embed msg
-        curr_song = self.queue.first()
-        embed_msg = self.spawn_embed(ctx, author = author, title = curr_song.title)
-        embed_msg.url = curr_song.get_vid_url()
-        self.add_embed_vid_meta(embed_msg, curr_song)
-
-        await ctx.send(embed = embed_msg)
+        await self.send_current_vid_info(ctx)
 
     # ========================================
     # queue command
@@ -270,22 +287,20 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def queue(self, ctx: Context):
+<<<<<<< HEAD
         author = "🎵 Music queue"
+=======
+>>>>>>> additional_features
 
         # Sends error message if the queue is empty
         if self.queue.empty():
-            embed_msg = self.spawn_embed(
-                ctx, 
-                author = author,
-                title = "There are currently no songs in queue"
-            )
-            return await ctx.send(embed = embed_msg)
+            return await ctx.send(self.QUEUE_EMPTY_MSG)
         
         # Spawn embed
         q_list = self.queue.dump()
         embed_msg = self.spawn_embed(
             ctx, 
-            author = author,
+            author = "Music queue 🎵",
             title = f"There are {len(q_list)} songs in queue"
         )
 
@@ -299,6 +314,38 @@ class commandsMusick(commands.Cog, name = "Music"):
                 inline = False
             )
 
+        await ctx.send(embed = embed_msg)
+    # ========================================
+
+    # ========================================
+    # remove command
+    # Usage: remove [index]
+    # Removes a song in queue at specified index
+    @commands.command(
+        name = "remove",
+        help = "remove [index]",
+        description = ("Removes a song in queue at specified index.\n" +
+            "> Note: Index starts at `1`")
+    )
+    @check_voice_channel()
+    async def remove(self, ctx: Context, index: int):
+        # Sends error message if queue is empty
+        if self.queue.empty():
+            return await ctx.send(self.QUEUE_EMPTY_MSG)
+        
+        # Sends error message if index is out of range
+        if index <= 0 or index > self.queue.get_len():
+            return await ctx.send("❌ **Index out of range**")
+        
+        # Get the song's data
+        target_song = self.queue.get_at_index(index - 1)
+
+        if index == 1:
+            self.skip_curr_vid(ctx)
+        else:
+            self.queue.remove_at_index(index - 1)
+
+        embed_msg = self.spawn_embed(ctx, title = target_song.title, author = "Removed ✅")
         await ctx.send(embed = embed_msg)
     # ========================================
     
@@ -315,17 +362,15 @@ class commandsMusick(commands.Cog, name = "Music"):
     async def skip(self, ctx: Context):
         # Sends error message if queue is empty
         if self.queue.empty():
-            title = "There are currently no songs playing"
-        else:
-            # Constructs embed message
-            curr_music = self.queue.first()
-            title = f"{curr_music.title}"
+            return await ctx.send(self.QUEUE_EMPTY_MSG)
 
-            # skips the current music and play the next one
-            ctx.voice_client.pause()
-            self.music_after(ctx)
+        # Get the current music's data
+        curr_music = self.queue.first()
 
-        embed_msg = self.spawn_embed(ctx, title = title, author = "Skip ⏭")
+        # Skips current video and play the next one
+        self.skip_curr_vid(ctx)
+
+        embed_msg = self.spawn_embed(ctx, title = curr_music.title, author = "Skip ⏭")
         await ctx.send(embed = embed_msg)
     # ========================================
 
@@ -358,8 +403,33 @@ class commandsMusick(commands.Cog, name = "Music"):
     # ========================================
 
     # ========================================
+    # Send the current vid's info embed
+    async def send_current_vid_info(self, ctx: Context):
+        author = "Now Playing ▶️"
+
+        # Sends error message if the queue is empty
+        if self.queue.empty():
+            return await ctx.send(self.QUEUE_EMPTY_MSG)
+
+        # Spawn embed msg
+        curr_song = self.queue.first()
+        embed_msg = self.spawn_embed(ctx, author = author, title = curr_song.title)
+        embed_msg.url = curr_song.get_vid_url()
+        self.add_embed_vid_meta(embed_msg, curr_song)
+
+        await ctx.send(embed = embed_msg)
+    # ========================================
+
+    # ========================================
+    # Skips current video in playlist and play the next one
+    def skip_curr_vid(self, ctx: Context):
+        ctx.voice_client.pause()
+        self.music_after(ctx)
+    # ========================================
+
+    # ========================================
     # Adds video meta to embed
-    def add_embed_vid_meta(self, embed_msg: Embed, curr_song):
+    def add_embed_vid_meta(self, embed_msg: Embed, curr_song: youtubeVidMeta):
         embed_msg.add_field(
             name = "Channel name:",
             value = f"> {curr_song.channel}"
@@ -372,65 +442,3 @@ class commandsMusick(commands.Cog, name = "Music"):
 
         embed_msg.set_thumbnail(url = curr_song.thumbnail)
     # ========================================
-
-# A queue system for the music bot
-class musicQueue():
-    def __init__(self):
-        self.queue_list = []
-
-    # Queues in a list
-    def queue(self, data):
-        self.queue_list.append(youtubeVidMeta(data))
-
-    # Dequeues the first item in list
-    def dequeue(self):
-        self.queue_list.pop(0)
-
-    # Returns a copy of the list
-    def dump(self):
-        return [vid_meta for vid_meta in self.queue_list]
-    
-    # Check if list is empty
-    def empty(self):
-        return len(self.queue_list) == 0
-
-    # Remove all item in list
-    def clean(self):
-        self.queue_list.clear()
-
-    # Returns the first item in list
-    def first(self):
-        return self.queue_list[0]
-
-    # Returns the last item in list
-    def last(self):
-        return self.queue_list[-1]
-
-# A class representing a youtube video
-# Contains metadata such as title, url, etc...
-class youtubeVidMeta():
-    def __init__(self, data):
-        self.url = data['formats'][0]['url']
-        self.duration = data['duration']
-        self.title = data['title']
-        self.vid_id = data['id']
-        self.channel = data['channel']
-        self.thumbnail = data['thumbnail']
-
-    # Display the duration in mm:ss format
-    def get_time(self):
-        m, s = divmod(self.duration, 60)
-        return "{:02d}:{:02d}".format(m, s)
-
-    # Returns the original video link
-    def get_vid_url(self):
-        return f"https://www.youtube.com/watch?v={self.vid_id}"
-
-    def get_embedded_title(self):
-        return f"[{self.title}]({self.get_vid_url()})"
-
-    # Prints data, for debugging
-    def printData(self):
-        print(f"Title: {self.title}")
-        print(f"Duration: {self.duration}")
-        print(f"Url: {self.url}")
