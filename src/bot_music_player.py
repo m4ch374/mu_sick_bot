@@ -187,20 +187,6 @@ class commandsMusick(commands.Cog, name = "Music"):
             options = '-vn -sample_rate 48000'
         )
 
-<<<<<<< HEAD
-            # Plays the audio in discord voice channel
-            # Note: vc means voice client
-            vc.play(
-                song_src,
-                after = lambda e: self.music_after(ctx) # e as in error
-            )
-        else :
-            queued_song = self.queue.last()
-            embed_msg = self.spawn_embed(ctx, author = "✅ Added to Queue", title = queued_song.title)
-            embed_msg.url = queued_song.get_vid_url()
-            self.add_embed_vid_meta(embed_msg, queued_song)
-            await ctx.send(embed = embed_msg)
-=======
         # Plays the audio in discord voice channel
         # Note: vc means voice client
         vc.play(
@@ -211,11 +197,10 @@ class commandsMusick(commands.Cog, name = "Music"):
     # Send a message of the queued song's info
     async def send_queued_message(self, ctx: Context):
         queued_song = self.queue.last()
-        embed_msg = self.spawn_embed(ctx, author = "Added to Queue☑", title = queued_song.title)
+        embed_msg = self.spawn_embed(ctx, author = "✅ Added to Queue", title = queued_song.title)
         embed_msg.url = queued_song.get_vid_url()
         self.add_embed_vid_meta(embed_msg, queued_song)
         await ctx.send(embed = embed_msg)
->>>>>>> additional_features
     
     # Funtion to run after music is finished
     def music_after(self, ctx: Context):
@@ -287,10 +272,6 @@ class commandsMusick(commands.Cog, name = "Music"):
     )
     @check_voice_channel()
     async def queue(self, ctx: Context):
-<<<<<<< HEAD
-        author = "🎵 Music queue"
-=======
->>>>>>> additional_features
 
         # Sends error message if the queue is empty
         if self.queue.empty():
