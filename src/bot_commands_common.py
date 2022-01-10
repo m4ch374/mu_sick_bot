@@ -3,16 +3,18 @@
 
 # Commands and error handling goes to the same file
 
-# Imports from discord
 from os import link, name
+import requests
+import json
+# Imports from discord
 import discord as discord
 from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.bot import Bot
 from discord.embeds import Embed
-
-# Import for Youtube-Search fnc (.yt)
+# Additional imports
 from youtubesearchpython.__future__ import VideosSearch
+from datetime import timedelta
 
 def setup(bot: Bot):
     bot.add_cog(commandsCommon())
@@ -101,28 +103,31 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     # This shit cool bruh - Henry 7/1/2022 19:26 HKT
     #
     # ========================================
-    # Spotify Sesh
-    # usage: spotify [str]
-    # Returns data on a user's spotify sesh
+    # Discord activity data
+    # usage: sesh [user]
+    # Returns info on a user's discord activity. One embed per activityType.
     @commands.command(
         name = "sesh",
         help = "sesh [user]",
         description = "Returns data on a user's discord activity"
     )
     async def sesh(self, ctx: Context, user: discord.Member=None):
+        # Defaults 'user' to author, if no arg is entered
         if user == None: 
             user = ctx.author
         elif user.bot:
-            await ctx.send(f"Sorry, `{user.name}` is a bot 🤖")
-            return
+            return await ctx.send(f"Sorry, `{user.name}` is a bot 🤖")
         # Checks if the user has an activity at the moment
         if user.activities:
-            # Accesses the user's activities (not just Spotify), 'user.activity' will access the Primary one
             for activity in user.activities:
-                if isinstance(activity, discord.Spotify):
-                    # Simplify {duration} into h:mm:ss
-                    duration = str(activity.duration)
-                    final_dur = duration[0:7]
+                # EDGE CASE: Skip custom status'
+                if str(activity.type) == 'ActivityType.custom':
+                    # EDGE CASE: When custom status is the user's only activity
+                    if len(user.activities) == 1:
+                        return await ctx.send(f"❌ **`{user.name}` is not in a session right now**")
+                    continue
+                # Activity is Spotify (.listening)
+                elif isinstance(activity, discord.Spotify):
                     embed_msg = self.spawn_embed(ctx, title = f"🎧 `{user.name}` is listening to:")
                     # 🎶 🎧
                     # ========================================
@@ -139,8 +144,11 @@ class commandsCommon(commands.Cog, name = "Common commands"):
                     embed_msg.add_field(name = 'Name', value = f"> {activity.title}")
                     embed_msg.add_field(name = 'Artist(s)', value = f"> {activity.artist}") 
                     embed_msg.add_field(name = 'Album', value = f"> {activity.album}")
+                    # Simplify {duration} into h:mm:ss
+                    duration = str(activity.duration)
+                    final_dur = duration[0:7]
                     embed_msg.add_field(name = 'Duration', value = f"> {final_dur}")
-
+                    
                     embed_msg.set_thumbnail(url = activity.album_cover_url)
                     spotify_icon_url = "https://www.freepnglogos.com/uploads/spotify-logo-png/file-spotify-logo-png-4.png"
                     embed_msg.set_footer(text = f"on {activity.name}", icon_url = spotify_icon_url)
@@ -148,14 +156,21 @@ class commandsCommon(commands.Cog, name = "Common commands"):
                     embed_msg.colour = activity.color
 
                     await ctx.send(embed = embed_msg)
-                    return
-                    
-                # elif isinstance(activity, discord.Game):
-                #     print("AYYEEEEEEE")
-                #     return
+                # Activity is a Game (.playing)
+                elif isinstance(activity, discord.Game) or isinstance(activity.type, type(discord.ActivityType.playing)):
+                    embed_msg = self.spawn_embed(ctx, title = f"🎮 `{user.name}` is playing:")
+                    embed_msg.add_field(name = 'Name', value = f"> {activity.name}", inline = False)
+                    # Convert UTC time into local time (AEDT) i.e +11hrs
+                    if activity.start is not None:
+                        aedt_start = activity.start + timedelta(hours = 11)
+                        start_str = str(aedt_start)
+                        simp_start = start_str[10:19]
+                        embed_msg.add_field(name = 'Started', value = f"> {simp_start} (AEDT)", inline = False) 
 
-        await ctx.send(f"❌ **`{user.name}` is not in a session right now**")
-        return
+                    await ctx.send(embed = embed_msg)
+            return
+        # When user.activities is niche
+        return await ctx.send(f"❌ **`{user.name}` is not in a session right now**")
 
 
     # ========================================
@@ -166,7 +181,7 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     # e.g.
     #
     # def i_love_blonde_loli(self):
-    #   print("8-yo blonde loli saigo!")
+    #   print("18-yo blonde loli saigo!")
 
     # ========================================
     # Spawn an embed template
