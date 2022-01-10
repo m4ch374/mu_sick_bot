@@ -150,10 +150,6 @@ The `mu_sick_bot` provides commands in these 4 main categories:
 
   > Repeats what the member typed
 
-* rand
-
-  > Selects a random Common commands that dosen't require an arg
-
 * yt [arg]
 
   > Gives the top 5 youtube links that mest matches the given input
