@@ -1,10 +1,23 @@
-# mu_sick_bot
+<h1 align="center">
+  &#127925 mu_sick_bot &#127925
+</h1>
 
-`mu_sick_bot` is a discord bot written in Python, using `discord.py`
+<p align = "center">
+  <img src="asset/mu_sick_bot_icon.png" alt="bot_icon">
+</p>
 
-The bot is compatible for both `Linux` and `Windows`.
+# :book: Description
+As music bots such as Groovy and Rythm ended their service, we thought:  
+> If we don't have one, we gon' make one - Sun Tsu (probably)
 
-# Getting Started
+And thats how the `mu_sick_bot` was born.  
+
+`mu_sick_bot` is a discord music bot written in Python, using `discord.py`.  
+It is a passion project coded by [m4ch374](https://github.com/m4ch374) and [n0t-4m17h](https://github.com/n0t-4m17h).
+
+This bot is compatible for both `Linux` and `Windows`.
+
+# :heavy_check_mark: Getting Started
 
 ### **1. Installing `Python`:**
 
@@ -62,16 +75,7 @@ $ py -3 -m pip install youtube-search-python
 $ py -3 -m pip install youtube-dl
 ```
 
-# Description
-`mu_sick_bot` is a discord music bot and a passion project coded by [m4ch374](https://github.com/m4ch374) and [n0t-4m17h](https://github.com/n0t-4m17h).
-
-As music bots such as Groovy and Rythm ended their service, we thought:  
-> If we don't have one, we gon' make one - Sun Tsu (probably)
-
-And thats how the `mu_sick_bot` was born.  
-The `mu_sick_bot` mainly focuses on music playing features but it also provides other commands.
-
-# Commands [Default prefix: `$`]
+# :robot: Commands [Default prefix: `$`]
 
 ## Help command
 * help Optional[command / category]
@@ -175,7 +179,7 @@ The `mu_sick_bot` provides commands in these 4 main categories:
 
   > Whitelist a role such that the role has access to Moderation commands
 
-# Supported Sources and Restrictions
+# :triangular_ruler: Supported Sources and Restrictions
 * :white_check_mark: Supported sources  
 Unfortunately, at this stage we only support sources from `youtube`
 
