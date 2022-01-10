@@ -1,12 +1,6 @@
 # File for general-purpose commands
 # Command dosent require any permission
 
-# Commands and error handling goes to the same file
-
-from os import link, name
-import requests
-import json
-
 # Imports from discord
 import discord as discord
 from discord.ext import commands
