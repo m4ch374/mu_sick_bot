@@ -8,7 +8,6 @@ import asyncio
 
 # Imports from discord
 import discord
-from discord import activity
 from discord.ext import commands
 from discord.ext.commands.bot import Bot
 from discord.message import Message

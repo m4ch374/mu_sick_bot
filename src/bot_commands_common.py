@@ -4,7 +4,6 @@
 # Commands and error handling goes to the same file
 
 # Imports from discord
-from os import link
 import discord as discord
 from discord.ext import commands
 from discord.ext.commands import Context
