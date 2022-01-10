@@ -1,8 +1,13 @@
 # Files for logging user and bot activities
+
+# Import from discord
 from discord.ext import commands
 from discord.ext.commands import CommandError
 from discord.ext.commands.bot import Bot
 from discord.ext.commands.context import Context
+
+# Import from own files
+import mu_sick_bot
 
 def setup(bot: Bot):
     bot.add_cog(logger(bot))
@@ -17,6 +22,7 @@ class logger(commands.Cog):
     @commands.Cog.listener()
     async def on_ready(self):
         print('We have logged in as {0.user}'.format(self.bot))
+        mu_sick_bot.set_activity(self.bot)
     # ========================================
 
     # ========================================
@@ -47,9 +53,11 @@ class logger(commands.Cog):
         if ctx.command:
             if ctx.command.has_error_handler(): return
 
+        # Ignore command not found error
         if isinstance(error, commands.CommandNotFound):
-            message = "This command does not exist. Run |.help| for more info"
-        elif isinstance(error, commands.MissingPermissions):
+            return
+        
+        if isinstance(error, commands.MissingPermissions):
             message = "You are missing the required permissions to run this command!"
         elif isinstance(error, commands.CommandOnCooldown):
             message = f"Hey `{ctx.author.name}`, please wait `{round(error.retry_after)}` seconds before executing this command!"
@@ -57,7 +65,8 @@ class logger(commands.Cog):
             message = f"`{error.argument}` appears to be absent from this server!"
             # # NOTE (4theDaddys): UserInputError goes at very bottom, cause it is generalised afaik
         elif isinstance(error, commands.UserInputError):
-            message = "Something about your input was wrong, please check your input and try again!"
+            message = (f"Something about your input was wrong, " +
+                f"type `{ctx.prefix}help {ctx.command}` for more info")
         else:
             print(error)
 

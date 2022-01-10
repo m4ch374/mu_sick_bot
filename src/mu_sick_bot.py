@@ -4,6 +4,7 @@
 # System imports
 import os
 import json
+import asyncio
 
 # Imports from discord
 import discord
@@ -30,8 +31,7 @@ def main():
     intents = discord.Intents.all()
 
     bot = commands.Bot(
-        command_prefix = 
-            commands.when_mentioned_or(get_prefix(SETTINGS_PATH)), 
+        command_prefix = get_prefix(SETTINGS_PATH),
 
         # Enables whitespace
         strip_after_prefix = True, 
@@ -92,6 +92,14 @@ def load_cogs(bot: Bot, ignore_list, curr_dir: str):
         if not files in ignore_list:
             print(f"Loaded {files}")
             bot.load_extension(f"{files[:-3]}")
+
+def set_activity(bot: Bot):
+    # Set activity
+    activity = discord.Game(name = f"{bot.command_prefix}help")
+    asyncio.run_coroutine_threadsafe(
+        bot.change_presence(activity = activity),
+        bot.loop
+    )
 
 # Only execute main if user executes this file
 if __name__ == '__main__':
