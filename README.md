@@ -148,7 +148,7 @@ The `mu_sick_bot` provides commands in these 4 main categories:
 
 * echo [args]
 
-  > Repeat what the user typed
+  > Repeats what the member typed
 
 * rand
 
@@ -156,10 +156,10 @@ The `mu_sick_bot` provides commands in these 4 main categories:
 
 * yt [arg]
 
-  > Gives the top 5 youtube links that mest matches the user's inputs
+  > Gives the top 5 youtube links that mest matches the given input
 
 * sesh [user]
-  > Displays the activities that a certain user has
+  > Displays the discord activities that a certain member has
 
 ## 4. Moderation
 * setPrefix [new_prefix]
@@ -189,4 +189,4 @@ Unfortunately, at this stage we only support sources from `youtube`
 
 ----
 
-We plan to further expand the capibilities this bot, if we have time.
+We plan to further expand the capabilities of this bot, when we have time.

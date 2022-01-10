@@ -85,6 +85,9 @@ class commandsMusick(commands.Cog, name = "Music"):
     @check_voice_channel()
     async def play(self, ctx: Context, *, link: str):
 
+        # "Thou shall not be sorry for finding a more efficient way to her anus" ~ Master Oogway, prolly @_@
+        # nah nah all g bro, that one liner is 100% much better, also, wtf does it mean? XDDD
+
         # ========================================
         # Im sorry bruh i've found a way to do the searching
         # without ytsearchpython but i suppose we could keep
