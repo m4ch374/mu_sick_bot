@@ -1,3 +1,5 @@
+# File for the |.help| cmd code
+
 # System imports
 from typing import Mapping
 

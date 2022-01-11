@@ -1,4 +1,5 @@
-# Files for logging user and bot activities
+# File for logging user and bot activities
+# Also contains general error checking responses
 
 # Import from discord
 from discord.ext import commands
@@ -43,10 +44,7 @@ class logger(commands.Cog):
     # ========================================
 
     # ========================================
-    # Amith could you code this up plz daddy
-    # I feel like this could be a hugh mungus fnc so 
-    # preferrably put it in a new file
-    # Oh and also change the message, these are only examples
+    # General error handlers
     @commands.Cog.listener()
     async def on_command_error(self, ctx: Context, error: CommandError):
         # Checks if ctx.cmd is "None"
@@ -63,7 +61,7 @@ class logger(commands.Cog):
             message = f"Hey `{ctx.author.name}`, please wait `{round(error.retry_after)}` seconds before executing this command!"
         elif isinstance(error, commands.errors.MemberNotFound):
             message = f"`{error.argument}` appears to be absent from this server!"
-            # # NOTE (4theDaddys): UserInputError goes at very bottom, cause it is generalised afaik
+            # UserInputError is a very generalised error, hence goes at the bottom
         elif isinstance(error, commands.UserInputError):
             message = (f"Something about your input was wrong, " +
                 f"type `{ctx.prefix}help {ctx.command}` for more info")
@@ -72,9 +70,3 @@ class logger(commands.Cog):
 
         await ctx.send(message)
     # ========================================
-
-    # ========================================
-    # General Helper functinos
-    # ========================================
-    # maybe i need to use it idk bro
-    

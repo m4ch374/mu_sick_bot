@@ -1,4 +1,4 @@
-# File for commands that only fit for the worthy
+# File for commands that are only fit for the worthy
 
 # Requires permission to use the command
 # Permission function is cog_check, MUST return a bool type
@@ -13,7 +13,7 @@ from discord.ext import commands
 from discord.ext.commands import Context
 from discord.ext.commands.bot import Bot
 
-# Import form own file
+# Import from own file
 import mu_sick_bot
 from mu_sick_bot import SETTINGS_PATH
 
@@ -131,6 +131,7 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
         description = ("Set the role as whitelisted role\n" +
             "i.e. said role has access to restricted commands")
     )
+    @commands.cooldown(rate = 5, per = 30, type = commands.BucketType.user)
     async def whitelist(self, ctx: Context, role: Role):
         self.modify_json_whitelist(role.name)
 
@@ -151,6 +152,7 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
         #close json file
         f.close()
     # ========================================
+
 
     # ========================================
     # General Helper functinos

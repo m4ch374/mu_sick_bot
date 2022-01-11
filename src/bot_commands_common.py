@@ -1,5 +1,5 @@
 # File for general-purpose commands
-# Command dosent require any permission
+# Commands don't require any permissions
 
 # Imports from discord
 import discord as discord
@@ -23,7 +23,6 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     # def __init__(self, bot: Bot):
     #     self.bot = bot
     
-
     # ========================================
     # Hello command
     # usage: hello
@@ -43,7 +42,6 @@ class commandsCommon(commands.Cog, name = "Common commands"):
             await ctx.send(f"{num} is not between 0 and 10!")
     # ========================================
 
-
     # ========================================
     # Echo command
     # usage: echo [arg]
@@ -51,8 +49,9 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     @commands.command(
         name = "echo",
         help = "echo [arg]",
-        description = "Returns the user's exact same input" # change this i cannot England XDDD
+        description = "Returns the user's exact same input"
     )
+    @commands.cooldown(rate = 5, per = 60, type = commands.BucketType.user)
     async def echo(self, ctx: Context, *, args):
         await ctx.send(args)
     # ========================================
@@ -66,17 +65,25 @@ class commandsCommon(commands.Cog, name = "Common commands"):
         help = "yt [arg]",
         description = "Finds YouTube's top search result of the 'arg' and simply returns the link"
     )
+    @commands.cooldown(rate = 3, per = 30, type = commands.BucketType.user)
     async def yt(self, ctx: Context, *, args):
         # if len(args) == 0:
-        videosSearch = VideosSearch(args, limit = 2)
+        videosSearch = VideosSearch(args, limit = 5)
         videosResult = await videosSearch.next()
+
+        embed_msg = self.spawn_embed(ctx, title = "Results")
+
+        for i in range(len(videosResult['result'])):
+            embed_msg.add_field(
+                name = f"{i + 1}. {videosResult['result'][i]['title']}",
+                value = videosResult['result'][i]['link'],
+                inline = False
+            )
+
         # Sends link
-        await ctx.send(videosResult['result'][0]['link'])
+        await ctx.send(embed = embed_msg)
     # ========================================
 
-
-    # This shit cool bruh - Henry 7/1/2022 19:26 HKT
-    #
     # ========================================
     # Discord activity data
     # usage: sesh [user]
@@ -86,6 +93,7 @@ class commandsCommon(commands.Cog, name = "Common commands"):
         help = "sesh [user]",
         description = "Returns data on a user's discord activity"
     )
+    @commands.cooldown(rate = 5, per = 60, type = commands.BucketType.user)
     async def sesh(self, ctx: Context, user: discord.Member=None):
         # Defaults 'user' to author, if no arg is entered
         user = ctx.author if user == None else user
@@ -94,14 +102,14 @@ class commandsCommon(commands.Cog, name = "Common commands"):
         if user.bot:
             return await ctx.send(f"Sorry, `{user.name}` is a bot 🤖")
 
-        # Remove custom activities
+        # Ignore custom activities
         activity_list = ([act for act in user.activities 
             if str(act.type) != 'ActivityType.custom'])
 
         # When user.activities is niche
         if len(activity_list) == 0:
             return await ctx.send(f"❌ **`{user.name}` is not in a session right now**")
-        
+
         for activity in activity_list:
             # Activity is Spotify (.listening)
             if isinstance(activity, discord.Spotify):
@@ -114,21 +122,10 @@ class commandsCommon(commands.Cog, name = "Common commands"):
             # Sends embed msg
             await ctx.send(embed = embed_msg)
 
-    # Helper function
+    # Helper functions for |.sesh| cmd
     def get_spotify_embed(self, ctx: Context, user: discord.Member , activity: discord.Spotify):
         embed_msg = self.spawn_embed(ctx, title = f"🎧 `{user.name}` is listening to:")
         # 🎶 🎧
-        # ========================================
-        # LEGACY
-        # ========================================
-        # embed_msg.description = (
-        #     f"Title: `{activity.title}`\n"
-        #     f"Artist(s): `{activity.artist}`\n"
-        #     f"Album: `{activity.album}`\n"
-        #     f"Duration: `{final_dur}`\n"
-        #     f"**on {activity.name}**"
-        # )
-        # ========================================
         embed_msg.add_field(name = 'Name', value = f"> {activity.title}")
         embed_msg.add_field(name = 'Artist(s)', value = f"> {activity.artist}") 
         embed_msg.add_field(name = 'Album', value = f"> {activity.album}")
@@ -172,7 +169,7 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     # Spawn an embed template
     def spawn_embed(self, ctx: Context, title: str):
         embed_msg = Embed(
-            colour = 0xc27c0e,
+            colour = 0x7289da,
             title = title
         )
 
