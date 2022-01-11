@@ -88,11 +88,11 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
 
     # ========================================
     # Kick a member
-    # Usage: kick [mention_target_member]
+    # Usage: kick [member] [reason]
     # Kicks a member and returns a confirmation msg
     @commands.command(
         name = "kick",
-        help = "kick [mention_target_member] [reason]",
+        help = "kick [member] [reason]",
         description = "Kicks a member and returns a confirmation msg"
     )
     async def kick(self, ctx: Context, member: Member, *, args: str=None):
@@ -105,11 +105,11 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
 
     # ========================================
     # Ban a member
-    # Usage: ban [mention_target_member] [reason]
+    # Usage: ban [member] [reason]
     # Bans member(s) and returns a confirmation msg
     @commands.command(
         name = "ban",
-        help = "ban [mention_target_member] [reason]",
+        help = "ban [member] [reason]",
         description = "Ban a member and returns a confirmation msg"
     )
     async def ban(self, ctx: Context, member: Member, *, args: str=None):
