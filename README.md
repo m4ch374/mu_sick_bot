@@ -107,7 +107,7 @@ The `mu_sick_bot` provides commands in these 4 main categories:
 ## 1. Music
 * play [link / title]
 
-  > Plays the music from the given link or title
+  > Plays the music from the given link or title  
   > Cooldown: 5 times max every 30secs, per Member
 
 * disconnect
@@ -116,17 +116,17 @@ The `mu_sick_bot` provides commands in these 4 main categories:
 
 * np
 
-  > Shows the info of the music that's currently playing
+  > Shows the info of the music that's currently playing  
   > Cooldown: once every 30secs, per Member
 
 * queue
 
-  > Displays the music queue
+  > Displays the music queue  
   > Cooldown: once every 30secs, per Member
 
 * remove [index]
 
-  > Removes a song from queue at specified index (Note: index starts at 1)
+  > Removes a song from queue at specified index (Note: index starts at 1)  
   > Cooldown: 5 times max every 15secs, per Member
 
 * skip
@@ -137,17 +137,17 @@ The `mu_sick_bot` provides commands in these 4 main categories:
 * covid Optional[country_slug]
 
   > Displays global covid data, displays data for specific country if `country slug` is provided  
-  > **Note: The data retrieved is kinda inaccurate.**
+  > **Note: The data retrieved is kinda inaccurate.**  
   > Cooldown: 5 times max every 30secs, per Member
 
 * anime [title]
 
-  > Displays info on the specified anime
+  > Displays info on the specified anime  
   > Cooldown: 5 times max every 30secs, per Member
 
 * manga [title]
 
-  > Displays info on the specified manga
+  > Displays info on the specified manga  
   > Cooldown: 5 times max every 30secs, per Member
 
 * waifu
@@ -163,21 +163,21 @@ The `mu_sick_bot` provides commands in these 4 main categories:
 
 * hello Optional[n]
 
-  > Prints "Hello World" n times
+  > Prints "Hello World" n times  
   > Cooldown: 4 times max every 60secs, per Member
 
 * echo [args]
 
-  > Repeats what the member typed
+  > Repeats the provided args  
   > Cooldown: 5 times max every 60secs, per Member
 
 * yt [arg]
 
-  > Gives the top 5 youtube links that mest matches the given input
+  > Gives the top 5 youtube links that mest matches the given input  
   > Cooldown: 3 times max every 30secs, per Member
 
 * sesh [user]
-  > Displays the discord activities that a certain member has
+  > Displays the discord activities that a certain member has  
   > Cooldown: 5 times max every 60secs, per Member
 
 ## 4. Moderation
@@ -196,7 +196,7 @@ The `mu_sick_bot` provides commands in these 4 main categories:
 
 * whitelist [role]
 
-  > Whitelist a role such that the role has access to Moderation commands
+  > Whitelist a role such that the role has access to Moderation commands  
   > Cooldown: 5 times max every 30secs, per Member
 
 # :triangular_ruler: Supported Sources and Restrictions
