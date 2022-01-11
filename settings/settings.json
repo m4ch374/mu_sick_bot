@@ -1,5 +1,5 @@
 {
-    "bot_token": "OTIxMzI4NTEyNzE4MjA5MDU1.YbxUCg._ZmyMkTtgFh_znDg3xxuZw6KAZY",
+    "bot_token": "",
     "fileIgnoreList": [
         "mu_sick_bot.py",
         "help_command.py",
@@ -8,7 +8,7 @@
     ],
     "Prefix": {
         "defaultPrefix": "$",
-        "customPrefix": "."
+        "customPrefix": ""
     },
     "whitelistRole": ""
 }
