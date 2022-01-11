@@ -254,14 +254,21 @@ class commandsAPI(commands.Cog, name = "API"):
     )
     @channel_is_nsfw()
     async def fbi(self, ctx: Context):
-        async with ctx.typing():
-            get_url = "https://waifu.pics/api/nsfw/waifu"
-            data = requests.get(get_url).json()
+        try:
+            async with ctx.typing():
+                get_url = "https://waifu.pics/api/nsfw/waifu"
+                data = requests.get(get_url).json()
 
-            img_bytes = io.BytesIO(requests.get(data['url']).content)
+                img_bytes = io.BytesIO(requests.get(data['url']).content)
+                file_extension = data['url'].rsplit('.', 1)[-1]
 
-        file_extension = data['url'].rsplit('.', 1)[-1]
-        await ctx.send(file = discord.File(img_bytes, f"SPOILER_img.{file_extension}"))
+            await ctx.send(file = discord.File(img_bytes, f"SPOILER_img.{file_extension}"))
+        except Exception as e:
+            # Prints traceback
+            traceback.print_exc()
+
+            # Send error embed
+            await ctx.send(f"❌ **Error: {e.args[0]}**")
     # ========================================
 
     # ========================================

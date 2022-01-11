@@ -55,7 +55,7 @@ def main():
     load_cogs(bot, ignore_list, CURR_DIR_PATH)
 
     # run token, token should be kept as an secret
-    bot.run('OTIxMzI4NTEyNzE4MjA5MDU1.YbxUCg._ZmyMkTtgFh_znDg3xxuZw6KAZY')
+    bot.run(get_token(SETTINGS_PATH))
 
 # Prints mu_sick_bot logo
 def print_logo():
@@ -95,6 +95,16 @@ def get_ignore_list(file_path: str):
     # close file and return list
     f.close()
     return returned_list
+
+# Get the bot's token
+def get_token(file_path: str):
+    f = open(file_path, 'r')
+    data = json.load(f)
+
+    token = data['bot_token']
+
+    f.close()
+    return token
 
 # Load cogs
 def load_cogs(bot: Bot, ignore_list, curr_dir: str):

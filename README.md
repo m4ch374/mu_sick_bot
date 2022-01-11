@@ -77,7 +77,16 @@ $ py -3 -m pip install youtube-dl
 
 # :desktop_computer: Running the bot
 
-To run the bot, navigate to the directory containing the srouce file, and run:
+To run the bot, navigate to the directory containing the srouce file,  
+then, navigate to `/settings/settings.json` and change this line:
+
+```
+{
+    "bot_token": "",  # <--- Type in your application's token
+    "fileIgnoreList": [
+```
+
+Navigate back to the original directory and run this command:
 
 ```cs
 # Linux users
