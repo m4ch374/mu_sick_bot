@@ -137,8 +137,8 @@ The `mu_sick_bot` provides commands in these 4 main categories:
 * covid Optional[country_slug]
 
   > Displays global covid data, displays data for specific country if `country slug` is provided  
+  > Cooldown: 5 times max every 30secs, per Member  
   > **Note: The data retrieved is kinda inaccurate.**  
-  > Cooldown: 5 times max every 30secs, per Member
 
 * anime [title]
 
