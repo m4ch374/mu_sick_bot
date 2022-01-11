@@ -75,6 +75,18 @@ $ py -3 -m pip install youtube-search-python
 $ py -3 -m pip install youtube-dl
 ```
 
+# :desktop_computer: Running the bot
+
+To run the bot, navigate to the directory containing the srouce file, and run:
+
+```cs
+# Linux users
+$ python3 src/mu_sick_bot.py
+
+# Windows users
+$ py src/mu_sick_bot.py
+```
+
 # :robot: Commands [Default prefix: `$`]
 
 ## Help command
