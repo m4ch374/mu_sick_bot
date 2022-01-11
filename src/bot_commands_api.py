@@ -1,5 +1,5 @@
 # File for all commands that uses API
-# Command dosent require any permission
+# Commands don't require any permissions
 
 # Import from system
 import io
@@ -46,6 +46,7 @@ class commandsAPI(commands.Cog, name = "API"):
         help = "covid Optional[country_slug]",
         description = "Returns a summary of covid stats across the world"
     )
+    @commands.cooldown(rate = 5, per = 30, type = commands.BucketType.user)
     async def covid(self, ctx: Context, country: str=None):
         async with ctx.typing():
             embed_msg = self.spawn_embed(ctx, title = "Covid Update")
@@ -122,6 +123,7 @@ class commandsAPI(commands.Cog, name = "API"):
         help = "anime [title]",
         description = "Returns an embed containing the anime's info"
     )
+    @commands.cooldown(rate = 5, per = 30, type = commands.BucketType.user)
     async def anime(self, ctx: Context, *, args: str):
         embed_msg = await self.get_weeb_api_embed(ctx, args)
 
@@ -137,6 +139,7 @@ class commandsAPI(commands.Cog, name = "API"):
         help = "manga [title]",
         description = "Returns an embed containing the manga's info"
     )
+    @commands.cooldown(rate = 5, per = 30, type = commands.BucketType.user)
     async def manga(self, ctx: Context, *, args: str):
         embed_msg = await self.get_weeb_api_embed(ctx, args)
 
@@ -248,7 +251,7 @@ class commandsAPI(commands.Cog, name = "API"):
     @commands.command(
         name = "fbi",
         help = "fbi",
-        description = ("Returns an embed containgin some very nsfw images\n" +
+        description = ("Returns an embed containing some very nsfw images\n" +
             "**Note: Use with caution!**")
     )
     @channel_is_nsfw()

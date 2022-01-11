@@ -1,5 +1,5 @@
 # File for playing music, managing queue etc.
-# Command dosent require any permission
+# Commands don't require any permissions
 
 # Import from system
 import asyncio
@@ -83,30 +83,8 @@ class commandsMusick(commands.Cog, name = "Music"):
         description = "Plays a youtube video on discord"
     )
     @check_voice_channel()
+    @commands.cooldown(rate = 5, per = 15, type = commands.BucketType.user)
     async def play(self, ctx: Context, *, link: str):
-
-        # "Thou shall not be sorry for finding a more efficient way to her anus" ~ Master Oogway, prolly @_@
-        # nah nah all g bro, that one liner is 100% much better, also, wtf does it mean? XDDD
-
-        # ========================================
-        # Im sorry bruh i've found a way to do the searching
-        # without ytsearchpython but i suppose we could keep
-        # the `yt` command
-        # 
-        # Code: `vid_info = vid_info['entries'][0] if 'entries' in vid_info else vid_info`
-        # In: queue_video_info()
-        #
-        # ========================================
-        # LEGACY
-        # ========================================
-        # Finds the link of the top search result of the str after '.play', in YouTube, and
-        # Assigns it to the 'link' var
-        # if link[:5] != 'https':
-        #     videosSearch = VideosSearch(link, limit = 2)
-        #     videosResult = await videosSearch.next()
-        #     link = videosResult['result'][0]['link']
-        # ========================================
-
         # Remove unwanted head and tail characters
         link = link.strip(" <>")
         
@@ -167,9 +145,6 @@ class commandsMusick(commands.Cog, name = "Music"):
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             vid_info = ydl.extract_info(url = link, download = False)
 
-        # SPAWN OF THE DEVIL:
-        #
-        # That is FAX - Henry 6/1/2022 19:48 HKT
         print(json.dumps(vid_info, indent = 4))
 
         vid_info = vid_info['entries'][0] if 'entries' in vid_info else vid_info
@@ -261,6 +236,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         description = "Display the current song"
     )
     @check_voice_channel()
+    @commands.cooldown(rate = 1, per = 15, type = commands.BucketType.user)
     async def np(self, ctx: Context):
         await self.send_current_vid_info(ctx)
 
@@ -274,6 +250,7 @@ class commandsMusick(commands.Cog, name = "Music"):
         description = "Displays the current queue"
     )
     @check_voice_channel()
+    @commands.cooldown(rate = 1, per = 15, type = commands.BucketType.user)
     async def queue(self, ctx: Context):
 
         # Sends error message if the queue is empty
@@ -312,6 +289,7 @@ class commandsMusick(commands.Cog, name = "Music"):
             "> Note: Index starts at `1`")
     )
     @check_voice_channel()
+    @commands.cooldown(rate = 5, per = 15, type = commands.BucketType.user)
     async def remove(self, ctx: Context, index: int):
         # Sends error message if queue is empty
         if self.queue.empty():
