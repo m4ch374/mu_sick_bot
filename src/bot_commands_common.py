@@ -68,10 +68,20 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     @commands.cooldown(rate = 3, per = 30, type = commands.BucketType.user)
     async def yt(self, ctx: Context, *, args):
         # if len(args) == 0:
-        videosSearch = VideosSearch(args, limit = 2)
+        videosSearch = VideosSearch(args, limit = 5)
         videosResult = await videosSearch.next()
+
+        embed_msg = self.spawn_embed(ctx, title = "Results")
+
+        for i in range(len(videosResult['result'])):
+            embed_msg.add_field(
+                name = f"{i + 1}. {videosResult['result'][i]['title']}",
+                value = videosResult['result'][i]['link'],
+                inline = False
+            )
+
         # Sends link
-        await ctx.send(videosResult['result'][0]['link'])
+        await ctx.send(embed = embed_msg)
     # ========================================
 
     # ========================================
@@ -159,7 +169,7 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     # Spawn an embed template
     def spawn_embed(self, ctx: Context, title: str):
         embed_msg = Embed(
-            colour = 0xc27c0e,
+            colour = 0x7289da,
             title = title
         )
 
