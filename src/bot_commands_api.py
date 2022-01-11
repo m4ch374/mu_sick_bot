@@ -35,8 +35,6 @@ def channel_is_nsfw():
     return commands.check(predicate)
 
 class commandsAPI(commands.Cog, name = "API"):
-    # No need __init__() for now i think
-
     # ========================================
     # Covid command
     # Usage: covid Optional[country_slug]

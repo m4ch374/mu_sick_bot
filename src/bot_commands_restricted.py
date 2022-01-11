@@ -152,9 +152,3 @@ class commandsRestricted(commands.Cog, name = "Moderation"):
         #close json file
         f.close()
     # ========================================
-
-
-    # ========================================
-    # General Helper functinos
-    # ========================================
-    # 

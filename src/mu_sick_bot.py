@@ -17,7 +17,6 @@ import help_command
 
 # ----------------------------------------
 # GLOBAL DEFINITIONS
-# btw this is really ugly, reckon there's a better way?
 global CURR_DIR_PATH
 global SETTINGS_PATH
 CURR_DIR_PATH = os.path.abspath(os.path.dirname(__file__)) + '/'
@@ -26,6 +25,7 @@ SETTINGS_PATH = f"{CURR_DIR_PATH}../settings/settings.json"
 
 # main fnc
 def main():
+    print_logo()
 
     # Set intents
     intents = discord.Intents.all()
@@ -56,6 +56,17 @@ def main():
 
     # run token, token should be kept as an secret
     bot.run('OTIxMzI4NTEyNzE4MjA5MDU1.YbxUCg._ZmyMkTtgFh_znDg3xxuZw6KAZY')
+
+# Prints mu_sick_bot logo
+def print_logo():
+    logo = ("███╗   ███╗██╗   ██╗        ███████╗██╗ ██████╗██╗  ██╗        ██████╗  ██████╗ ████████╗\n" +
+            "████╗ ████║██║   ██║        ██╔════╝██║██╔════╝██║ ██╔╝        ██╔══██╗██╔═══██╗╚══██╔══╝\n" +
+            "██╔████╔██║██║   ██║        ███████╗██║██║     █████╔╝         ██████╔╝██║   ██║   ██║   \n" +
+            "██║╚██╔╝██║██║   ██║        ╚════██║██║██║     ██╔═██╗         ██╔══██╗██║   ██║   ██║   \n" +
+            "██║ ╚═╝ ██║╚██████╔╝███████╗███████║██║╚██████╗██║  ██╗███████╗██████╔╝╚██████╔╝   ██║   \n" +
+            "╚═╝     ╚═╝ ╚═════╝ ╚══════╝╚══════╝╚═╝ ╚═════╝╚═╝  ╚═╝╚══════╝╚═════╝  ╚═════╝    ╚═╝   \n")
+
+    print(f"\n{logo}")
 
 # Helper function for getting bot prefix
 def get_prefix(file_path: str):
@@ -90,9 +101,12 @@ def load_cogs(bot: Bot, ignore_list, curr_dir: str):
     # Load cogs
     for files in os.listdir(curr_dir):
         if not files in ignore_list:
-            print(f"Loaded {files}")
+            print(f"* Loaded {files}")
             bot.load_extension(f"{files[:-3]}")
+    # Prints new line
+    print("")
 
+# Sets the activity of the bot
 def set_activity(bot: Bot):
     # Set activity
     activity = discord.Game(name = f"{bot.command_prefix}help")

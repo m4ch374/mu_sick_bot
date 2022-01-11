@@ -20,11 +20,6 @@ from discord import FFmpegOpusAudio
 from music_queue_system import youtubeVidMeta
 from music_queue_system import musicQueue
 
-# ========================================
-# LEGACY
-# from youtubesearchpython.__future__ import VideosSearch
-# ========================================
-
 def setup(bot: Bot):
     bot.add_cog(commandsMusick())
 

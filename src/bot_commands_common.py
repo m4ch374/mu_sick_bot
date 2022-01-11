@@ -16,13 +16,6 @@ def setup(bot: Bot):
     bot.add_cog(commandsCommon())
 
 class commandsCommon(commands.Cog, name = "Common commands"):
-    # Afaik commands work without constructor
-    # unless we need self.Bot variable for some reson
-    # if thats the case then uncomment it
-    #
-    # def __init__(self, bot: Bot):
-    #     self.bot = bot
-    
     # ========================================
     # Hello command
     # usage: hello
@@ -158,12 +151,6 @@ class commandsCommon(commands.Cog, name = "Common commands"):
     # ========================================
     # General Helper functinos
     # ========================================
-
-    # any general helper function at the class level goes here
-    # e.g.
-    #
-    # def i_love_blonde_loli(self):
-    #   print("18-yo blonde loli saigo!")
 
     # ========================================
     # Spawn an embed template
