@@ -23,7 +23,7 @@ This bot is compatible for both `Linux` and `Windows`.
 
 To run the bot, we must first install python.
 
-**Note: Pyhon 3.8 or higher is required.**
+**Note: Python 3.8 or higher is required.**
 
 * For Linux users:
 ```
@@ -182,7 +182,7 @@ The `mu_sick_bot` provides commands in these 4 main categories:
 
 * yt [arg]
 
-  > Gives the top 5 youtube links that mest matches the given input  
+  > Gives the top 5 youtube links that best matches the given input  
   > Cooldown: 3 times max every 30secs, per Member
 
 * sesh [user]
